@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+        /* =========================
+           Dashboard
+        ========================== */
+
+        .dashboard-page {
+            padding: 40px 7%;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .dashboard-header h1 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .dashboard-header p {
+            color: var(--muted);
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* =========================
+           Stats
+        ========================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card strong {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .stat-card small {
+            display: block;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        /* =========================
+           Dashboard Grid
+        ========================== */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .dashboard-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .dashboard-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .card-header h2 {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .card-header a {
+            color: var(--primary-dark);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* =========================
+           Tables
+        ========================== */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 13px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dashboard-table th {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .dashboard-table td {
+            font-size: 0.9rem;
+        }
+
+        /* =========================
+           Empty State
+        ========================== */
+
+        .empty-state {
+            text-align: center;
+            padding: 35px 15px;
+            color: var(--muted);
+        }
+
+        .empty-state .empty-icon {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        /* =========================
+           Recommendation
+        ========================== */
+
+        .recommendation-box {
+            padding: 22px;
+            border-radius: 14px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .recommendation-box h3 {
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        .recommendation-box p {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* =========================
+           Loading
+        ========================== */
+
+        .loading {
+            text-align: center;
+            color: var(--muted);
+            padding: 25px;
+        }
+
+        /* =========================
+           Responsive
+        ========================== */
+
+        @media (max-width: 1000px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-card.full-width {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .dashboard-page {
+                padding: 30px 5%;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================
+         Navigation
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/kitchen-setup">Setup</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         Dashboard
+    ========================== -->
+
+    <main class="dashboard-page">
+
+        <div class="dashboard-header">
+
+            <div>
+
+                <span class="badge">
+                    AI Kitchen Dashboard
+                </span>
+
+                <h1 id="kitchenName">
+                    Loading Kitchen...
+                </h1>
+
+                <p>
+                    Monitor your kitchen operations
+                    and reduce food waste.
+                </p>
+
+            </div>
+
+
+            <div class="dashboard-actions">
+
+                <a
+                    href="/inventory"
+                    class="btn btn-secondary"
+                >
+                    Inventory
+                </a>
+
+                <a
+                    href="/sales"
+                    class="btn btn-secondary"
+                >
+                    Add Sales
+                </a>
+
+                <a
+                    href="/waste"
+                    class="btn btn-primary"
+                >
+                    Add Waste
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Statistics
+        ========================== -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📦
+                </div>
+
+                <span>
+                    Inventory Items
+                </span>
+
+                <strong id="inventoryCount">
+                    0
+                </strong>
+
+                <small>
+                    Current stock items
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    💰
+                </div>
+
+                <span>
+                    Total Sales
+                </span>
+
+                <strong id="totalSales">
+                    0
+                </strong>
+
+                <small>
+                    Units sold
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    🗑️
+                </div>
+
+                <span>
+                    Total Waste
+                </span>
+
+                <strong id="totalWaste">
+                    0
+                </strong>
+
+                <small>
+                    Wasted quantity
+                </small>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon">
+                    📉
+                </div>
+
+                <span>
+                    Waste Rate
+                </span>
+
+                <strong id="wasteRate">
+                    0%
+                </strong>
+
+                <small>
+                    Overall waste percentage
+                </small>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             Main Dashboard
+        ========================== -->
+
+        <section class="dashboard-grid">
+
+
+            <!-- Waste Summary -->
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Waste Overview
+                    </h2>
+
+                    <a href="/waste">
+                        View Details
+                    </a>
+
+                </div>
+
+                <div
+                    id="wasteSummary"
+                    class="loading"
+                >
+                    Loading waste data...
+                </div>
+
+            </div>
+
+
+            <!-- AI Recommendation -->
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🤖 AI Recommendation
+                    </h2>
+
+                    <a href="/recommendations">
+                        View
+                    </a>
+
+                </div>
+
+                <div class="recommendation-box">
+
+                    <h3>
+                        Smart Preparation
+                    </h3>
+
+                    <p id="recommendationText">
+                        Add sales history and menu
+                        items to generate AI-powered
+                        preparation recommendations.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- Inventory -->
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Inventory
+                    </h2>
+
+                    <a href="/inventory">
+                        Manage
+                    </a>
+
+                </div>
+
+                <div
+                    id="inventoryList"
+                    class="loading"
+                >
+                    Loading inventory...
+                </div>
+
+            </div>
+
+
+            <!-- High Waste Items -->
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        ⚠️ High Waste Items
+                    </h2>
+
+                    <a href="/waste">
+                        Analyze
+                    </a>
+
+                </div>
+
+                <div
+                    id="highWasteList"
+                    class="loading"
+                >
+                    Loading...
+                </div>
+
+            </div>
+
+
+            <!-- Quick Actions -->
+
+            <div class="dashboard-card full-width">
+
+                <div class="card-header">
+
+                    <h2>
+                        Quick Actions
+                    </h2>
+
+                </div>
+
+                <div class="dashboard-actions">
+
+                    <a
+                        href="/kitchen-setup"
+                        class="btn btn-secondary"
+                    >
+                        ⚙️ Kitchen Setup
+                    </a>
+
+                    <a
+                        href="/inventory"
+                        class="btn btn-secondary"
+                    >
+                        📦 Manage Inventory
+                    </a>
+
+                    <a
+                        href="/sales"
+                        class="btn btn-secondary"
+                    >
+                        📊 Record Sales
+                    </a>
+
+                    <a
+                        href="/waste"
+                        class="btn btn-secondary"
+                    >
+                        🗑️ Record Waste
+                    </a>
+
+                    <a
+                        href="/predictions"
+                        class="btn btn-primary"
+                    >
+                        🔮 Demand Prediction
+                    </a>
+
+                    <a
+                        href="/recommendations"
+                        class="btn btn-primary"
+                    >
+                        🤖 AI Recommendations
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         Dashboard JavaScript
+    ========================== -->
+
+    <script>
+
+        // -----------------------------------------
+        // Kitchen selection and bootstrap
+        // -----------------------------------------
+
+        async function ensureKitchen() {
+            let kitchenId = localStorage.getItem("kitchen_id");
+
+            // If already stored, return it
+            if (kitchenId) {
+                return kitchenId;
+            }
+
+            try {
+                // Fetch kitchens list
+                const r = await fetch('/api/kitchen/');
+                const res = await r.json();
+
+                if (res.success && res.kitchens && res.kitchens.length > 0) {
+                    kitchenId = res.kitchens[0].id;
+                    localStorage.setItem('kitchen_id', kitchenId);
+                    return kitchenId;
+                }
+
+                // No kitchen exists — create a demo kitchen
+                const createResp = await fetch('/api/kitchen/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'Demo Kitchen', cuisine_type: 'General', seats: 20, meals_per_day: 100 })
+                });
+
+                const createResult = await createResp.json();
+                if (createResult.success && createResult.kitchen && createResult.kitchen.id) {
+                    kitchenId = createResult.kitchen.id;
+                    localStorage.setItem('kitchen_id', kitchenId);
+                    return kitchenId;
+                }
+
+            } catch (err) {
+                console.error('Unable to ensure kitchen:', err);
+            }
+
+            return null;
+        }
+
+
+        // -----------------------------------------
+        // Load Kitchen
+        // -----------------------------------------
+
+        async function loadKitchen(kitchenId) {
+
+            if (!kitchenId) {
+                document.getElementById('kitchenName').textContent = 'No Kitchen Selected';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/kitchen/${kitchenId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('kitchenName').textContent = result.kitchen.name;
+                }
+
+            } catch (error) {
+                console.error('Kitchen loading error:', error);
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Load Inventory
+        // -----------------------------------------
+
+        async function loadInventory(kitchenId) {
+
+            if (!kitchenId) return;
+
+            try {
+                const response = await fetch(`/api/inventory/${kitchenId}`);
+                const result = await response.json();
+
+                if (!result.success) return;
+
+                const inventory = result.inventory;
+
+                document.getElementById('inventoryCount').textContent = inventory.length;
+
+                const container = document.getElementById('inventoryList');
+
+                if (inventory.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📦</div>
+                            <p>No inventory added yet.</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="table-wrapper">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr><th>Ingredient</th><th>Quantity</th><th>Unit</th></tr>
+                            </thead>
+                            <tbody>
+                                ${inventory.slice(0,5).map(item => `
+                                    <tr>
+                                        <td>${item.ingredient_name}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.unit}</td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+
+            } catch (error) {
+                console.error('Inventory error:', error);
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Load Waste Summary
+        // -----------------------------------------
+
+        async function loadWasteSummary(kitchenId) {
+            if (!kitchenId) return;
+
+            try {
+                const response = await fetch(`/api/waste/${kitchenId}/summary`);
+                const result = await response.json();
+
+                if (!result.success) return;
+
+                const summary = result.summary;
+
+                document.getElementById('totalWaste').textContent = summary.total_waste;
+                document.getElementById('totalSales').textContent = summary.total_sales;
+                document.getElementById('wasteRate').textContent = `${summary.waste_percentage}%`;
+
+                document.getElementById('wasteSummary').innerHTML = `
+                    <div>
+                        <p>Total Waste: <strong>${summary.total_waste}</strong></p>
+                        <p>Waste Cost: <strong>₹${summary.total_waste_cost}</strong></p>
+                        <p>Waste Rate: <strong>${summary.waste_percentage}%</strong></p>
+                    </div>`;
+
+            } catch (error) {
+                console.error('Waste summary error:', error);
+            }
+        }
+
+
+        // -----------------------------------------
+        // Load High Waste Items
+        // -----------------------------------------
+
+        async function loadHighWasteItems(kitchenId) {
+            if (!kitchenId) return;
+
+            try {
+                const response = await fetch(`/api/waste/${kitchenId}/high-waste`);
+                const result = await response.json();
+
+                if (!result.success) return;
+
+                const items = result.high_waste_items;
+                const container = document.getElementById('highWasteList');
+
+                if (items.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">✅</div>
+                            <p>No waste records yet.</p>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="table-wrapper">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr><th>Food Item</th><th>Waste</th><th>Cost</th></tr>
+                            </thead>
+                            <tbody>
+                                ${items.map(item => `
+                                    <tr>
+                                        <td>${item.menu_item}</td>
+                                        <td>${item.total_waste}</td>
+                                        <td>₹${item.total_cost}</td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+
+            } catch (error) {
+                console.error('High waste error:', error);
+            }
+        }
+
+
+        // -----------------------------------------
+        // Initialize Dashboard
+        // -----------------------------------------
+
+        (async function initDashboard(){
+            const id = await ensureKitchen();
+            await loadKitchen(id);
+            await loadInventory(id);
+            await loadWasteSummary(id);
+            await loadHighWasteItems(id);
+        })();
+
+    </script>
+
+</body>
+
+</html>

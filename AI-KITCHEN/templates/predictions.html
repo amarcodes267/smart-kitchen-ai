@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Demand Prediction | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+
+        .page-container {
+            padding: 40px 7%;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: var(--muted);
+        }
+
+        .prediction-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 25px;
+        }
+
+        .prediction-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .prediction-card h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            background: var(--white);
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .prediction-result {
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-content {
+            width: 100%;
+            text-align: center;
+        }
+
+        .prediction-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin: 15px 0;
+        }
+
+        .prediction-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .result-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .info-box {
+            padding: 15px;
+            background: var(--background);
+            border-radius: 10px;
+        }
+
+        .info-box span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .info-box strong {
+            color: var(--secondary);
+        }
+
+        .empty-result {
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-result .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 12px;
+            border-radius: 9px;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .price-preview {
+            padding: 15px;
+            margin-bottom: 20px;
+            background: var(--background);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .price-preview p {
+            margin: 4px 0;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .price-preview strong {
+            color: var(--secondary);
+        }
+
+        @media (max-width: 900px) {
+
+            .prediction-layout {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .result-info {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">
+                Home
+            </a>
+
+            <a href="/dashboard">
+                Dashboard
+            </a>
+
+            <a href="/menu">
+                Menu
+            </a>
+
+            <a href="/sales">
+                Sales
+            </a>
+
+            <a href="/waste">
+                Waste
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="page-container">
+
+
+        <div class="page-header">
+
+            <span class="badge">
+                AI Demand Prediction
+            </span>
+
+            <h1>
+                Predict Food Demand
+            </h1>
+
+            <p>
+                Select a meal and center. The system
+                will automatically use valid information
+                from the food-demand dataset.
+            </p>
+
+        </div>
+
+
+        <div class="prediction-layout">
+
+
+            <!-- =========================
+                 INPUT CARD
+            ========================== -->
+
+            <div class="prediction-card">
+
+                <h2>
+                    🔮 Prediction Input
+                </h2>
+
+
+                <div
+                    id="message"
+                    class="message"
+                ></div>
+
+
+                <form
+                    id="predictionForm"
+                >
+
+
+                    <!-- Week -->
+
+                    <div class="form-group">
+
+                        <label for="week">
+                            Prediction Week
+                        </label>
+
+                        <input
+                            type="number"
+                            id="week"
+                            min="1"
+                            value="146"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Center -->
+
+                    <div class="form-group">
+
+                        <label for="center_id">
+                            Fulfillment Center
+                        </label>
+
+                        <select
+                            id="center_id"
+                            required
+                        >
+
+                            <option value="">
+                                Loading centers...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Meal -->
+
+                    <div class="form-group">
+
+                        <label for="meal_id">
+                            Food / Meal
+                        </label>
+
+                        <select
+                            id="meal_id"
+                            required
+                        >
+
+                            <option value="">
+                                Loading meals...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Price Preview -->
+
+                    <div
+                        id="pricePreview"
+                        class="price-preview"
+                    >
+
+                        <p>
+                            Select a meal to see pricing.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Checkout Price -->
+
+                    <div class="form-group">
+
+                        <label for="checkout_price">
+
+                            Checkout Price (₹)
+
+                        </label>
+
+                        <input
+                            type="number"
+                            id="checkout_price"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Base Price -->
+
+                    <div class="form-group">
+
+                        <label for="base_price">
+
+                            Base Price (₹)
+
+                        </label>
+
+                        <input
+                            type="number"
+                            id="base_price"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Email Promotion -->
+
+                    <div class="checkbox-group">
+
+                        <input
+                            type="checkbox"
+                            id="emailer_for_promotion"
+                        >
+
+                        <label
+                            for="emailer_for_promotion"
+                        >
+
+                            Email Promotion
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- Homepage -->
+
+                    <div class="checkbox-group">
+
+                        <input
+                            type="checkbox"
+                            id="homepage_featured"
+                        >
+
+                        <label
+                            for="homepage_featured"
+                        >
+
+                            Homepage Featured
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- Submit -->
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        style="
+                            width: 100%;
+                            border: none;
+                            cursor: pointer;
+                        "
+                    >
+
+                        Generate Prediction
+
+                    </button>
+
+
+                </form>
+
+
+                <div
+                    style="
+                        margin-top: 25px;
+                        color: var(--muted);
+                        font-size: 0.85rem;
+                    "
+                >
+
+                    <strong>
+                        Model:
+                    </strong>
+
+                    XGBoost Regressor
+
+                    <br>
+
+                    <strong>
+                        Target:
+                    </strong>
+
+                    Number of Orders
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 RESULT CARD
+            ========================== -->
+
+            <div
+                class="
+                    prediction-card
+                    prediction-result
+                "
+            >
+
+                <div
+                    id="result"
+                    class="result-content"
+                >
+
+                    <div class="empty-result">
+
+                        <div class="icon">
+                            🤖
+                        </div>
+
+                        <h2>
+                            No Prediction Yet
+                        </h2>
+
+                        <p>
+                            Select a meal and click
+                            Generate Prediction.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+
+        // =========================================
+        // Global meal data
+        // =========================================
+
+        let meals = [];
+
+
+        // =========================================
+        // Show Message
+        // =========================================
+
+        function showMessage(
+            text,
+            type
+        ) {
+
+            const message =
+                document.getElementById(
+                    "message"
+                );
+
+
+            message.textContent = text;
+
+
+            message.className =
+                `message ${type}`;
+
+        }
+
+
+        // =========================================
+        // Load Centers
+        // =========================================
+
+        async function loadCenters() {
+
+            const centerSelect =
+                document.getElementById(
+                    "center_id"
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/data/centers"
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok ||
+                    !data.success) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to load centers."
+                    );
+
+                }
+
+
+                centerSelect.innerHTML = `
+
+                    <option value="">
+                        Select center
+                    </option>
+
+                    ${data.centers.map(
+                        center => `
+
+                            <option
+                                value="${center}"
+                            >
+                                Center ${center}
+                            </option>
+
+                        `
+                    ).join("")}
+
+                `;
+
+
+            } catch (error) {
+
+                centerSelect.innerHTML = `
+
+                    <option value="">
+                        Unable to load centers
+                    </option>
+
+                `;
+
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        // =========================================
+        // Load Meals
+        // =========================================
+
+        async function loadMeals() {
+
+            const mealSelect =
+                document.getElementById(
+                    "meal_id"
+                );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/data/meals"
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok ||
+                    !data.success) {
+
+                    throw new Error(
+                        data.message ||
+                        "Unable to load meals."
+                    );
+
+                }
+
+
+                meals =
+                    data.meals;
+
+
+                mealSelect.innerHTML = `
+
+                    <option value="">
+                        Select food / meal
+                    </option>
+
+                    ${meals.map(
+                        meal => `
+
+                            <option
+                                value="${meal.meal_id}"
+                            >
+                                Meal ${meal.meal_id}
+                            </option>
+
+                        `
+                    ).join("")}
+
+                `;
+
+
+            } catch (error) {
+
+                mealSelect.innerHTML = `
+
+                    <option value="">
+                        Unable to load meals
+                    </option>
+
+                `;
+
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        // =========================================
+        // Update Prices
+        // =========================================
+
+        document
+            .getElementById("meal_id")
+            .addEventListener(
+                "change",
+                function() {
+
+                    const selectedMealId =
+                        Number(
+                            this.value
+                        );
+
+
+                    const selectedMeal =
+                        meals.find(
+                            meal =>
+                                meal.meal_id
+                                ===
+                                selectedMealId
+                        );
+
+
+                    if (!selectedMeal) {
+
+                        return;
+
+                    }
+
+
+                    document.getElementById(
+                        "checkout_price"
+                    ).value =
+                        selectedMeal.checkout_price;
+
+
+                    document.getElementById(
+                        "base_price"
+                    ).value =
+                        selectedMeal.base_price;
+
+
+                    document.getElementById(
+                        "pricePreview"
+                    ).innerHTML = `
+
+                        <p>
+                            Checkout Price:
+                            <strong>
+                                ₹${selectedMeal.checkout_price}
+                            </strong>
+                        </p>
+
+                        <p>
+                            Base Price:
+                            <strong>
+                                ₹${selectedMeal.base_price}
+                            </strong>
+                        </p>
+
+                    `;
+
+                }
+            );
+
+
+        // =========================================
+        // Submit Prediction
+        // =========================================
+
+        document
+            .getElementById("predictionForm")
+            .addEventListener(
+                "submit",
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const resultContainer =
+                        document.getElementById(
+                            "result"
+                        );
+
+
+                    // ---------------------------------
+                    // Get values
+                    // ---------------------------------
+
+                    const week =
+                        Number(
+                            document.getElementById(
+                                "week"
+                            ).value
+                        );
+
+
+                    const centerId =
+                        Number(
+                            document.getElementById(
+                                "center_id"
+                            ).value
+                        );
+
+
+                    const mealId =
+                        Number(
+                            document.getElementById(
+                                "meal_id"
+                            ).value
+                        );
+
+
+                    const checkoutPrice =
+                        Number(
+                            document.getElementById(
+                                "checkout_price"
+                            ).value
+                        );
+
+
+                    const basePrice =
+                        Number(
+                            document.getElementById(
+                                "base_price"
+                            ).value
+                        );
+
+
+                    const emailPromotion =
+                        document.getElementById(
+                            "emailer_for_promotion"
+                        ).checked
+                        ? 1
+                        : 0;
+
+
+                    const homepageFeatured =
+                        document.getElementById(
+                            "homepage_featured"
+                        ).checked
+                        ? 1
+                        : 0;
+
+
+                    // ---------------------------------
+                    // Validate
+                    // ---------------------------------
+
+                    if (
+                        week <= 0 ||
+                        centerId <= 0 ||
+                        mealId <= 0 ||
+                        checkoutPrice <= 0 ||
+                        basePrice <= 0
+                    ) {
+
+                        showMessage(
+                            "Please enter valid values.",
+                            "error"
+                        );
+
+                        return;
+
+                    }
+
+
+                    // ---------------------------------
+                    // Loading
+                    // ---------------------------------
+
+                    resultContainer.innerHTML = `
+
+                        <div class="empty-result">
+
+                            <div>
+
+                                <div class="icon">
+                                    ⏳
+                                </div>
+
+                                <h2>
+                                    Generating Prediction...
+                                </h2>
+
+                                <p>
+                                    XGBoost is analyzing
+                                    the selected food data.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+                    try {
+
+                        // -----------------------------
+                        // API call
+                        // -----------------------------
+
+                        const response =
+                            await fetch(
+                                "/api/prediction/",
+                                {
+
+                                    method: "POST",
+
+                                    headers: {
+
+                                        "Content-Type":
+                                            "application/json"
+
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+
+                                            week:
+                                                week,
+
+                                            center_id:
+                                                centerId,
+
+                                            meal_id:
+                                                mealId,
+
+                                            checkout_price:
+                                                checkoutPrice,
+
+                                            base_price:
+                                                basePrice,
+
+                                            emailer_for_promotion:
+                                                emailPromotion,
+
+                                            homepage_featured:
+                                                homepageFeatured
+
+                                        })
+
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (!response.ok ||
+                            !data.success) {
+
+                            throw new Error(
+                                data.message ||
+                                "Prediction failed."
+                            );
+
+                        }
+
+
+                        const prediction =
+                            data.prediction;
+
+
+                        // -----------------------------
+                        // Display result
+                        // -----------------------------
+
+                        resultContainer.innerHTML = `
+
+                            <div class="result-content">
+
+                                <div
+                                    style="
+                                        font-size: 2rem;
+                                    "
+                                >
+                                    🔮
+                                </div>
+
+
+                                <div
+                                    class="prediction-label"
+                                >
+                                    Predicted Demand
+                                </div>
+
+
+                                <div
+                                    class="
+                                        prediction-number
+                                    "
+                                >
+                                    ${
+                                        prediction
+                                        .predicted_demand
+                                    }
+                                </div>
+
+
+                                <div
+                                    class="prediction-label"
+                                >
+                                    expected orders
+                                </div>
+
+
+                                <div class="result-info">
+
+
+                                    <div
+                                        class="info-box"
+                                    >
+
+                                        <span>
+                                            Week
+                                        </span>
+
+                                        <strong>
+                                            ${week}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div
+                                        class="info-box"
+                                    >
+
+                                        <span>
+                                            Meal ID
+                                        </span>
+
+                                        <strong>
+                                            ${mealId}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div
+                                        class="info-box"
+                                    >
+
+                                        <span>
+                                            Center
+                                        </span>
+
+                                        <strong>
+                                            ${centerId}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div
+                                        class="info-box"
+                                    >
+
+                                        <span>
+                                            Model
+                                        </span>
+
+                                        <strong>
+                                            ${prediction.model}
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    style="
+                                        margin-top: 25px;
+                                        padding: 18px;
+                                        background:
+                                            #f0fdf4;
+                                        border-radius:
+                                            12px;
+                                        color:
+                                            #166534;
+                                    "
+                                >
+
+                                    💡
+
+                                    Prepare approximately
+
+                                    <strong>
+                                        ${
+                                            prediction
+                                            .predicted_demand
+                                        }
+                                    </strong>
+
+                                    orders based on
+                                    the XGBoost prediction.
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+
+                    } catch (error) {
+
+                        resultContainer.innerHTML = `
+
+                            <div
+                                class="empty-result"
+                            >
+
+                                <div>
+
+                                    <div class="icon">
+                                        ⚠️
+                                    </div>
+
+                                    <h2>
+                                        Prediction Failed
+                                    </h2>
+
+                                    <p>
+                                        ${error.message}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+
+                        console.error(
+                            "Prediction error:",
+                            error
+                        );
+
+                    }
+
+                }
+            );
+
+
+        // =========================================
+        // Initialize
+        // =========================================
+
+        loadCenters();
+
+        loadMeals();
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+Flask
+Flask-SQLAlchemy
+psycopg2-binary
+python-dotenv
+
+pandas
+numpy
+scikit-learn
+xgboost
+
+ortools
+
+google-generativeai
+
+gunicorn

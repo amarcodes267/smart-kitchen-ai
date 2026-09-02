@@ -1,0 +1,4 @@
+﻿/* forms.css - common form styles */
+.form-field { margin-bottom: 12px; }
+label { display: block; font-weight: 600; }
+input, select, textarea { padding: 8px; width: 100%; box-sizing: border-box; }

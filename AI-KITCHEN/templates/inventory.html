@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inventory | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+        .page-container {
+            padding: 40px 7%;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: var(--muted);
+        }
+
+        .inventory-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        .inventory-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .inventory-card h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .inventory-table th,
+        .inventory-table td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .inventory-table th {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .inventory-table td {
+            font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            border: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 7px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 12px;
+            border-radius: 9px;
+            font-size: 0.9rem;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 900px) {
+            .inventory-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+        </div>
+
+    </nav>
+
+
+    <main class="page-container">
+
+        <!-- Header -->
+
+        <div class="page-header">
+
+            <span class="badge">
+                Inventory Management
+            </span>
+
+            <h1>
+                Kitchen Inventory
+            </h1>
+
+            <p>
+                Add and manage ingredients available
+                in your kitchen.
+            </p>
+
+        </div>
+
+
+        <!-- Main Layout -->
+
+        <div class="inventory-layout">
+
+
+            <!-- Add Inventory -->
+
+            <div class="inventory-card">
+
+                <h2>
+                    ➕ Add Ingredient
+                </h2>
+
+                <div
+                    id="message"
+                    class="message"
+                ></div>
+
+
+                <form id="inventoryForm">
+
+                    <div class="form-group">
+
+                        <label for="ingredient_name">
+                            Ingredient Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="ingredient_name"
+                            placeholder="e.g. Rice"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="quantity">
+                            Quantity
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity"
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g. 50"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="unit">
+                            Unit
+                        </label>
+
+                        <select id="unit">
+
+                            <option value="kg">
+                                Kilogram (kg)
+                            </option>
+
+                            <option value="litre">
+                                Litre
+                            </option>
+
+                            <option value="pieces">
+                                Pieces
+                            </option>
+
+                            <option value="packets">
+                                Packets
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="minimum_stock">
+                            Minimum Stock
+                        </label>
+
+                        <input
+                            type="number"
+                            id="minimum_stock"
+                            min="0"
+                            step="0.01"
+                            value="0"
+                            placeholder="e.g. 10"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="expiry_date">
+                            Expiry Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="expiry_date"
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        style="width: 100%; border: none; cursor: pointer;"
+                    >
+                        Add to Inventory
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- Inventory List -->
+
+            <div class="inventory-card">
+
+                <h2>
+                    📦 Current Inventory
+                </h2>
+
+                <div class="table-wrapper">
+
+                    <table class="inventory-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Ingredient
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Unit
+                                </th>
+
+                                <th>
+                                    Min Stock
+                                </th>
+
+                                <th>
+                                    Expiry
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="inventoryTableBody">
+
+                            <tr>
+                                <td
+                                    colspan="6"
+                                    class="empty-state"
+                                >
+                                    Loading inventory...
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // -----------------------------------------
+        // Kitchen ID
+        // -----------------------------------------
+
+        const kitchenId =
+            localStorage.getItem("kitchen_id");
+
+
+        // -----------------------------------------
+        // Message
+        // -----------------------------------------
+
+        function showMessage(
+            text,
+            type
+        ) {
+
+            const message =
+                document.getElementById(
+                    "message"
+                );
+
+            message.textContent = text;
+
+            message.className =
+                `message ${type}`;
+
+        }
+
+
+        // -----------------------------------------
+        // Load Inventory
+        // -----------------------------------------
+
+        async function loadInventory() {
+
+            const tableBody =
+                document.getElementById(
+                    "inventoryTableBody"
+                );
+
+
+            if (!kitchenId) {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="empty-state"
+                        >
+                            Please create a kitchen first.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/inventory/${kitchenId}`
+                    );
+
+                const result =
+                    await response.json();
+
+
+                if (!result.success) {
+
+                    throw new Error(
+                        result.message
+                    );
+
+                }
+
+
+                const inventory =
+                    result.inventory;
+
+
+                if (inventory.length === 0) {
+
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+                                No ingredients added yet.
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+
+                }
+
+
+                tableBody.innerHTML =
+                    inventory.map(item => `
+
+                        <tr>
+
+                            <td>
+                                ${item.ingredient_name}
+                            </td>
+
+                            <td>
+                                ${item.quantity}
+                            </td>
+
+                            <td>
+                                ${item.unit}
+                            </td>
+
+                            <td>
+                                ${item.minimum_stock || 0}
+                            </td>
+
+                            <td>
+                                ${
+                                    item.expiry_date
+                                    || "-"
+                                }
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="delete-btn"
+                                    onclick="enableEditInventory(${item.id})"
+                                    style="margin-right:8px"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    class="delete-btn"
+                                    onclick="deleteInventory(${item.id})"
+                                >
+                                    Delete
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("");
+
+
+            } catch (error) {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="empty-state"
+                        >
+                            Unable to load inventory.
+                        </td>
+                    </tr>
+                `;
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Add Inventory
+        // -----------------------------------------
+
+        document.getElementById(
+            "inventoryForm"
+        ).addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+                if (!kitchenId) {
+                    showMessage(
+                        "Please create a kitchen first.",
+                        "error"
+                    );
+                    return;
+                }
+
+                // Client-side validation
+                const ingredientName = document.getElementById("ingredient_name").value.trim();
+                const quantityRaw = document.getElementById("quantity").value;
+                const unit = document.getElementById("unit").value;
+                const minimumStockRaw = document.getElementById("minimum_stock").value;
+                const expiryValue = document.getElementById("expiry_date").value || null;
+
+                if (!ingredientName) {
+                    showMessage("Ingredient name is required.", "error");
+                    return;
+                }
+
+                if (quantityRaw === "" || isNaN(Number(quantityRaw))) {
+                    showMessage("Quantity is required and must be a number.", "error");
+                    return;
+                }
+
+                const quantity = Number(quantityRaw);
+                if (quantity < 0) {
+                    showMessage("Quantity cannot be negative.", "error");
+                    return;
+                }
+
+                if (!unit) {
+                    showMessage("Please select a unit.", "error");
+                    return;
+                }
+
+                const minimum_stock = minimumStockRaw === "" || isNaN(Number(minimumStockRaw)) ? 0 : Number(minimumStockRaw);
+                if (minimum_stock < 0) {
+                    showMessage("Minimum stock cannot be negative.", "error");
+                    return;
+                }
+
+                const submitBtn = event.submitter || document.querySelector('#inventoryForm button[type=submit]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Adding...';
+                }
+
+                const data = {
+                    kitchen_id: Number(kitchenId),
+                    ingredient_name: ingredientName,
+                    quantity,
+                    unit,
+                    minimum_stock,
+                    expiry_date: expiryValue
+                };
+
+                try {
+                    const response = await fetch(
+                        "/api/inventory/",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(data)
+                        }
+                    );
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || "Unable to add inventory.");
+                    }
+
+                    showMessage("Ingredient added successfully.", "success");
+                    document.getElementById("inventoryForm").reset();
+                    await loadInventory();
+
+                } catch (error) {
+                    showMessage(error.message || String(error), "error");
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Add to Inventory';
+                    }
+                }
+
+            }
+        );
+
+
+        // -----------------------------------------
+        // Delete Inventory
+        // -----------------------------------------
+
+        async function deleteInventory(
+            itemId
+        ) {
+
+            const confirmed =
+                confirm(
+                    "Delete this inventory item?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/inventory/${itemId}`,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.message ||
+                        "Unable to delete item."
+                    );
+
+                }
+
+
+                showMessage(
+                    "Inventory item deleted.",
+                    "success"
+                );
+
+
+                await loadInventory();
+
+
+            } catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Enable inline editing for an inventory item
+        // -----------------------------------------
+
+        function enableEditInventory(itemId) {
+            // Find the row for this item
+            const rows = document.querySelectorAll('#inventoryTableBody tr');
+            for (const row of rows) {
+                if (!row.dataset) continue;
+                // rows were generated dynamically; find by Delete button onclick contains id
+                if (row.innerHTML.includes(`deleteInventory(${itemId})`)) {
+                    const cells = row.children;
+                    const name = cells[0].textContent.trim();
+                    const qty = cells[1].textContent.trim();
+                    const unit = cells[2].textContent.trim();
+                    const minStock = cells[3].textContent.trim() || '0';
+                    const expiry = cells[4].textContent.trim();
+
+                    row._orig = row.innerHTML;
+
+                    row.innerHTML = `
+                        <td><input type="text" id="edit_name_${itemId}" value="${name}" style="width:100%; padding:6px;"/></td>
+                        <td><input type="number" id="edit_qty_${itemId}" value="${qty}" step="0.01" style="width:100%; padding:6px;"/></td>
+                        <td>
+                            <select id="edit_unit_${itemId}" style="width:100%; padding:6px;">
+                                <option value="kg" ${unit==='kg'?'selected':''}>kg</option>
+                                <option value="litre" ${unit==='litre'?'selected':''}>litre</option>
+                                <option value="pieces" ${unit==='pieces'?'selected':''}>pieces</option>
+                                <option value="packets" ${unit==='packets'?'selected':''}>packets</option>
+                            </select>
+                        </td>
+                        <td><input type="number" id="edit_min_${itemId}" value="${minStock}" step="0.01" style="width:100%; padding:6px;"/></td>
+                        <td><input type="date" id="edit_exp_${itemId}" value="${expiry==='-'? '': expiry}" style="width:100%; padding:6px;"/></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="saveEditInventory(${itemId})" style="margin-right:8px">Save</button>
+                            <button class="delete-btn" onclick="cancelEditInventory(this, '${itemId}')">Cancel</button>
+                        </td>
+                    `;
+                    break;
+                }
+            }
+        }
+
+        async function saveEditInventory(itemId) {
+            const name = document.getElementById(`edit_name_${itemId}`).value.trim();
+            const quantity = Number(document.getElementById(`edit_qty_${itemId}`).value);
+            const unit = document.getElementById(`edit_unit_${itemId}`).value;
+            const minimum_stock = Number(document.getElementById(`edit_min_${itemId}`).value);
+            const expiry_date = document.getElementById(`edit_exp_${itemId}`).value || null;
+
+            const payload = { ingredient_name: name, quantity, unit, minimum_stock, expiry_date };
+
+            try {
+                const response = await fetch(`/api/inventory/${itemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.message || 'Unable to update inventory.');
+                }
+                showMessage('Inventory updated successfully.', 'success');
+                await loadInventory();
+            } catch (err) {
+                showMessage(err.message || String(err), 'error');
+            }
+        }
+
+        function cancelEditInventory(button, itemId) {
+            // Reload inventory to restore original row
+            loadInventory();
+        }
+
+        // -----------------------------------------
+        // Initialize
+        // -----------------------------------------
+
+        loadInventory();
+
+    </script>
+
+</body>
+
+</html>

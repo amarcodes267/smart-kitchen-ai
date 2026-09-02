@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+    <!-- =========================
+         Navigation
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/kitchen-setup">Kitchen Setup</a>
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         Hero Section
+    ========================== -->
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <span class="badge">
+                    AI-Powered Kitchen Management
+                </span>
+
+                <h1>
+                    Reduce Food Waste.
+                    <br>
+                    Prepare Smarter.
+                </h1>
+
+                <p>
+                    AI Kitchen uses demand prediction,
+                    food-waste analytics and intelligent
+                    preparation optimization to help
+                    commercial kitchens reduce waste
+                    and improve efficiency.
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="/kitchen-setup"
+                        class="btn btn-primary"
+                    >
+                        Get Started
+                    </a>
+
+                    <a
+                        href="/dashboard"
+                        class="btn btn-secondary"
+                    >
+                        View Dashboard
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 Feature Card
+            ========================== -->
+
+            <div class="hero-card">
+
+                <div class="card-icon">
+                    🤖
+                </div>
+
+                <h2>
+                    Smart Preparation
+                </h2>
+
+                <p>
+                    Predict tomorrow's demand and
+                    calculate the recommended amount
+                    of food to prepare.
+                </p>
+
+                <div class="prediction-preview">
+
+                    <div>
+                        <span>Predicted Demand</span>
+                        <strong>200 servings</strong>
+                    </div>
+
+                    <div>
+                        <span>Recommended</span>
+                        <strong>190 servings</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             Features
+        ========================== -->
+
+        <section class="features">
+
+            <div class="section-heading">
+
+                <span class="badge">
+                    Core Features
+                </span>
+
+                <h2>
+                    Intelligent Kitchen Management
+                </h2>
+
+                <p>
+                    Everything needed to understand
+                    kitchen operations and reduce
+                    unnecessary food waste.
+                </p>
+
+            </div>
+
+
+            <div class="feature-grid">
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📊
+                    </div>
+
+                    <h3>
+                        Waste Analytics
+                    </h3>
+
+                    <p>
+                        Track food waste, identify
+                        high-waste items and understand
+                        waste trends.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🔮
+                    </div>
+
+                    <h3>
+                        Demand Prediction
+                    </h3>
+
+                    <p>
+                        Use historical sales data and
+                        XGBoost to predict future food
+                        demand.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        ⚙️
+                    </div>
+
+                    <h3>
+                        Prep Optimization
+                    </h3>
+
+                    <p>
+                        Calculate how much food should
+                        actually be prepared based on
+                        demand and waste patterns.
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🧠
+                    </div>
+
+                    <h3>
+                        AI Recommendations
+                    </h3>
+
+                    <p>
+                        Gemini provides easy-to-understand
+                        recommendations for kitchen
+                        managers.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             How It Works
+        ========================== -->
+
+        <section class="how-it-works">
+
+            <div class="section-heading">
+
+                <span class="badge">
+                    How It Works
+                </span>
+
+                <h2>
+                    From Data to Better Decisions
+                </h2>
+
+            </div>
+
+
+            <div class="steps">
+
+                <div class="step">
+
+                    <div class="step-number">
+                        01
+                    </div>
+
+                    <h3>
+                        Enter Kitchen Data
+                    </h3>
+
+                    <p>
+                        Add inventory, sales and
+                        food-waste information.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        02
+                    </div>
+
+                    <h3>
+                        AI Analyzes Data
+                    </h3>
+
+                    <p>
+                        The system analyzes historical
+                        patterns and predicts demand.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        03
+                    </div>
+
+                    <h3>
+                        Optimize Preparation
+                    </h3>
+
+                    <p>
+                        Calculate the recommended
+                        preparation quantity.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        04
+                    </div>
+
+                    <h3>
+                        Reduce Waste
+                    </h3>
+
+                    <p>
+                        Follow AI recommendations to
+                        reduce unnecessary food waste.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             CTA
+        ========================== -->
+
+        <section class="cta">
+
+            <h2>
+                Ready to make your kitchen smarter?
+            </h2>
+
+            <p>
+                Set up your kitchen and start tracking
+                your food operations.
+            </p>
+
+            <a
+                href="/kitchen-setup"
+                class="btn btn-primary"
+            >
+                Set Up Kitchen
+            </a>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         Footer
+    ========================== -->
+
+    <footer>
+
+        <p>
+            © 2026 AI Kitchen |
+            Food Waste Analytics & Prep Optimization
+        </p>
+
+    </footer>
+
+</body>
+</html>

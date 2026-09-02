@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sales | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+        .page-container {
+            padding: 40px 7%;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: var(--muted);
+        }
+
+        .sales-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        .sales-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .sales-card h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .sales-table th,
+        .sales-table td {
+            padding: 14px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sales-table th {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .sales-table td {
+            font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            border: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 7px 10px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 12px;
+            border-radius: 9px;
+            font-size: 0.9rem;
+        }
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 900px) {
+            .sales-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================
+         Navigation
+    ========================== -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/menu">Menu</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/waste">Waste</a>
+        </div>
+
+    </nav>
+
+
+    <main class="page-container">
+
+        <!-- Header -->
+
+        <div class="page-header">
+
+            <span class="badge">
+                Sales Management
+            </span>
+
+            <h1>
+                Daily Food Sales
+            </h1>
+
+            <p>
+                Record daily sales to build the historical
+                data used for demand prediction.
+            </p>
+
+        </div>
+
+
+        <div class="sales-layout">
+
+
+            <!-- =========================
+                 Add Sales
+            ========================== -->
+
+            <div class="sales-card">
+
+                <h2>
+                    ➕ Record Sales
+                </h2>
+
+                <div
+                    id="message"
+                    class="message"
+                ></div>
+
+
+                <form id="salesForm">
+
+                    <!-- Date -->
+
+                    <div class="form-group">
+
+                        <label for="sale_date">
+                            Sale Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="sale_date"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Menu Item -->
+
+                    <div class="form-group">
+
+                        <label for="menu_item_id">
+                            Food Item
+                        </label>
+
+                        <select
+                            id="menu_item_id"
+                            required
+                        >
+
+                            <option value="">
+                                Loading menu...
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- Quantity -->
+
+                    <div class="form-group">
+
+                        <label for="quantity_sold">
+                            Quantity Sold
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity_sold"
+                            min="0"
+                            step="1"
+                            placeholder="e.g. 180"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Revenue -->
+
+                    <div class="form-group">
+
+                        <label for="revenue">
+                            Revenue (Optional)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="revenue"
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g. 18000"
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        style="width: 100%; border: none; cursor: pointer;"
+                    >
+                        Save Sales
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- =========================
+                 Sales History
+            ========================== -->
+
+            <div class="sales-card">
+
+                <h2>
+                    📊 Sales History
+                </h2>
+
+                <div class="table-wrapper">
+
+                    <table class="sales-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Food Item
+                                </th>
+
+                                <th>
+                                    Quantity
+                                </th>
+
+                                <th>
+                                    Revenue
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="salesTableBody">
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="empty-state"
+                                >
+                                    Loading sales...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // -----------------------------------------
+        // Kitchen ID
+        // -----------------------------------------
+
+        const kitchenId =
+            localStorage.getItem("kitchen_id");
+
+
+        // -----------------------------------------
+        // Default Date
+        // -----------------------------------------
+
+        document.getElementById(
+            "sale_date"
+        ).value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+
+        // -----------------------------------------
+        // Show Message
+        // -----------------------------------------
+
+        function showMessage(
+            text,
+            type
+        ) {
+
+            const message =
+                document.getElementById(
+                    "message"
+                );
+
+            message.textContent = text;
+
+            message.className =
+                `message ${type}`;
+
+        }
+
+
+        // -----------------------------------------
+        // Load Menu
+        // -----------------------------------------
+
+        async function loadMenu() {
+
+            const menuSelect =
+                document.getElementById(
+                    "menu_item_id"
+                );
+
+
+            if (!kitchenId) {
+
+                menuSelect.innerHTML = `
+                    <option value="">
+                        Create a kitchen first
+                    </option>
+                `;
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/menu/${kitchenId}`
+                    );
+
+                const result =
+                    await response.json();
+
+
+                if (!result.success) {
+
+                    throw new Error(
+                        result.message
+                    );
+
+                }
+
+
+                const menuItems =
+                    result.menu_items;
+
+
+                if (menuItems.length === 0) {
+
+                    menuSelect.innerHTML = `
+                        <option value="">
+                            Add menu items first
+                        </option>
+                    `;
+
+                    return;
+
+                }
+
+
+                menuSelect.innerHTML = `
+                    <option value="">
+                        Select food item
+                    </option>
+
+                    ${menuItems.map(item => `
+
+                        <option value="${item.id}">
+                            ${item.name}
+                        </option>
+
+                    `).join("")}
+                `;
+
+
+            } catch (error) {
+
+                menuSelect.innerHTML = `
+                    <option value="">
+                        Unable to load menu
+                    </option>
+                `;
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Load Sales
+        // -----------------------------------------
+
+        async function loadSales() {
+
+            const tableBody =
+                document.getElementById(
+                    "salesTableBody"
+                );
+
+
+            if (!kitchenId) {
+
+                tableBody.innerHTML = `
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="empty-state"
+                        >
+                            Please create a kitchen first.
+                        </td>
+
+                    </tr>
+                `;
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/sales/${kitchenId}`
+                    );
+
+                const result =
+                    await response.json();
+
+
+                if (!result.success) {
+
+                    throw new Error(
+                        result.message
+                    );
+
+                }
+
+
+                const sales =
+                    result.sales;
+
+
+                if (sales.length === 0) {
+
+                    tableBody.innerHTML = `
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="empty-state"
+                            >
+                                No sales records yet.
+                            </td>
+
+                        </tr>
+                    `;
+
+                    return;
+
+                }
+
+
+                /*
+                 * We fetch menu data separately so
+                 * we can display the food name.
+                 */
+
+                const menuResponse =
+                    await fetch(
+                        `/api/menu/${kitchenId}`
+                    );
+
+                const menuResult =
+                    await menuResponse.json();
+
+
+                const menuMap = {};
+
+                if (menuResult.success) {
+
+                    menuResult.menu_items
+                        .forEach(item => {
+
+                            menuMap[item.id] =
+                                item.name;
+
+                        });
+
+                }
+
+
+                tableBody.innerHTML =
+                    sales.map(sale => `
+
+                        <tr>
+
+                            <td>
+                                ${sale.sale_date}
+                            </td>
+
+                            <td>
+                                ${
+                                    menuMap[
+                                        sale.menu_item_id
+                                    ]
+                                    || "Unknown"
+                                }
+                            </td>
+
+                            <td>
+                                ${sale.quantity_sold}
+                            </td>
+
+                            <td>
+                                ₹${sale.revenue || 0}
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="delete-btn"
+                                    onclick="deleteSale(
+                                        ${sale.id}
+                                    )"
+                                >
+                                    Delete
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    `).join("");
+
+
+            } catch (error) {
+
+                tableBody.innerHTML = `
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="empty-state"
+                        >
+                            Unable to load sales.
+                        </td>
+
+                    </tr>
+                `;
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Add Sales
+        // -----------------------------------------
+
+        document.getElementById(
+            "salesForm"
+        ).addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                if (!kitchenId) {
+
+                    showMessage(
+                        "Please create a kitchen first.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                const data = {
+
+                    kitchen_id:
+                        Number(kitchenId),
+
+                    menu_item_id:
+                        Number(
+                            document.getElementById(
+                                "menu_item_id"
+                            ).value
+                        ),
+
+                    sale_date:
+                        document.getElementById(
+                            "sale_date"
+                        ).value,
+
+                    quantity_sold:
+                        Number(
+                            document.getElementById(
+                                "quantity_sold"
+                            ).value
+                        ),
+
+                    revenue:
+                        document.getElementById(
+                            "revenue"
+                        ).value
+                        ? Number(
+                            document.getElementById(
+                                "revenue"
+                            ).value
+                        )
+                        : null
+
+                };
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/sales/",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(data)
+                            }
+                        );
+
+
+                    const result =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            result.message ||
+                            "Unable to save sales."
+                        );
+
+                    }
+
+
+                    showMessage(
+                        "Sales recorded successfully.",
+                        "success"
+                    );
+
+
+                    document.getElementById(
+                        "quantity_sold"
+                    ).value = "";
+
+                    document.getElementById(
+                        "revenue"
+                    ).value = "";
+
+
+                    await loadSales();
+
+
+                } catch (error) {
+
+                    showMessage(
+                        error.message,
+                        "error"
+                    );
+
+                }
+
+            }
+        );
+
+
+        // -----------------------------------------
+        // Delete Sale
+        // -----------------------------------------
+
+        async function deleteSale(
+            saleId
+        ) {
+
+            const confirmed =
+                confirm(
+                    "Delete this sales record?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/sales/${saleId}`,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+
+                const result =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result.message ||
+                        "Unable to delete sales record."
+                    );
+
+                }
+
+
+                showMessage(
+                    "Sales record deleted.",
+                    "success"
+                );
+
+
+                await loadSales();
+
+
+            } catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        // -----------------------------------------
+        // Initialize
+        // -----------------------------------------
+
+        loadMenu();
+        loadSales();
+
+    </script>
+
+</body>
+
+</html>

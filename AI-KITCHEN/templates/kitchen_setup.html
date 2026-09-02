@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kitchen Setup | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+    <style>
+        .setup-page {
+            min-height: calc(100vh - 70px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+
+        .setup-container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--white);
+            padding: 40px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .setup-header h1 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .setup-header p {
+            color: var(--muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .setup-message {
+            margin-top: 20px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .setup-message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .setup-message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .setup-footer {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .setup-footer a {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .setup-container {
+                padding: 25px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+
+    </nav>
+
+
+    <!-- Kitchen Setup -->
+
+    <main class="setup-page">
+
+        <div class="setup-container">
+
+            <div class="setup-header">
+
+                <span class="badge">
+                    Kitchen Setup
+                </span>
+
+                <h1>
+                    Set Up Your Kitchen
+                </h1>
+
+                <p>
+                    Enter some basic information to
+                    start using AI Kitchen.
+                </p>
+
+            </div>
+
+
+            <form id="kitchenSetupForm">
+
+                <!-- Kitchen Name -->
+
+                <div class="form-group">
+
+                    <label for="name">
+                        Kitchen / Restaurant Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="e.g. ABC Restaurant"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Cuisine -->
+
+                <div class="form-group">
+
+                    <label for="cuisine_type">
+                        Cuisine Type
+                    </label>
+
+                    <select
+                        id="cuisine_type"
+                        name="cuisine_type"
+                    >
+
+                        <option value="">
+                            Select cuisine type
+                        </option>
+
+                        <option value="Indian">
+                            Indian
+                        </option>
+
+                        <option value="Chinese">
+                            Chinese
+                        </option>
+
+                        <option value="Italian">
+                            Italian
+                        </option>
+
+                        <option value="Continental">
+                            Continental
+                        </option>
+
+                        <option value="Multi-Cuisine">
+                            Multi-Cuisine
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Seats + Meals -->
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="seats">
+                            Number of Seats
+                        </label>
+
+                        <input
+                            type="number"
+                            id="seats"
+                            name="seats"
+                            min="1"
+                            placeholder="e.g. 100"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="meals_per_day">
+                            Expected Meals / Day
+                        </label>
+
+                        <input
+                            type="number"
+                            id="meals_per_day"
+                            name="meals_per_day"
+                            min="1"
+                            placeholder="e.g. 250"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Submit -->
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    style="width: 100%; border: none; cursor: pointer;"
+                >
+                    Create Kitchen
+                </button>
+
+            </form>
+
+
+            <!-- Message -->
+
+            <div
+                id="setupMessage"
+                class="setup-message"
+            ></div>
+
+
+            <div class="setup-footer">
+
+                <a href="/">
+                    ← Back to Home
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const form = document.getElementById(
+            "kitchenSetupForm"
+        );
+
+        const message = document.getElementById(
+            "setupMessage"
+        );
+
+
+        form.addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+                const kitchenData = {
+
+                    name: document.getElementById(
+                        "name"
+                    ).value.trim(),
+
+                    cuisine_type: document.getElementById(
+                        "cuisine_type"
+                    ).value,
+
+                    seats: document.getElementById(
+                        "seats"
+                    ).value
+                        ? Number(
+                            document.getElementById(
+                                "seats"
+                            ).value
+                        )
+                        : null,
+
+                    meals_per_day:
+                        document.getElementById(
+                            "meals_per_day"
+                        ).value
+                        ? Number(
+                            document.getElementById(
+                                "meals_per_day"
+                            ).value
+                        )
+                        : null
+                };
+
+
+                try {
+
+                    const response = await fetch(
+                        "/api/kitchen/",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify(
+                                kitchenData
+                            )
+                        }
+                    );
+
+
+                    const result =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            result.message ||
+                            "Failed to create kitchen."
+                        );
+
+                    }
+
+
+                    message.textContent =
+                        "Kitchen created successfully!";
+
+                    message.className =
+                        "setup-message success";
+
+
+                    // Save kitchen ID locally
+                    localStorage.setItem(
+                        "kitchen_id",
+                        result.kitchen.id
+                    );
+
+
+                    // Redirect to dashboard
+                    setTimeout(
+                        function() {
+
+                            window.location.href =
+                                "/dashboard";
+
+                        },
+                        1000
+                    );
+
+
+                } catch (error) {
+
+                    message.textContent =
+                        error.message;
+
+                    message.className =
+                        "setup-message error";
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>
