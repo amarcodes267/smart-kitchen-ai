@@ -46,3 +46,27 @@ def test_menu_rejects_invalid_prices_without_a_server_error():
 
     assert response.status_code == 400
     assert response.get_json()["success"] is False
+
+
+def test_initial_preparation_estimate_validates_and_returns_llm_text(monkeypatch):
+    with app.test_client() as client:
+        invalid_response = client.post(
+            "/api/preparation/",
+            json={"ingredients": "Rice", "people": 0},
+        )
+        assert invalid_response.status_code == 400
+
+        monkeypatch.setattr(
+            "backend.routes.preparation.generate_text",
+            lambda prompt: "Suggested servings to prepare: 20",
+        )
+        response = client.post(
+            "/api/preparation/",
+            json={"ingredients": "2 kg rice", "people": 20},
+        )
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "success": True,
+        "estimate": "Suggested servings to prepare: 20",
+    }

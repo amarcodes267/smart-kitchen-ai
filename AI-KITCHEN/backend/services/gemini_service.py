@@ -19,7 +19,12 @@ def generate_text(prompt: str, max_tokens: int = 256) -> str:
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        response = genai.generate_text(model="models/text-bison-001", input=prompt)
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        response = model.generate_content(
+            prompt,
+            generation_config={"max_output_tokens": max_tokens},
+            request_options={"timeout": 20},
+        )
         return getattr(response, 'text', str(response))
     except Exception as e:
         # Fail gracefully in production -- return short error string

@@ -22,6 +22,7 @@ from backend.routes.waste import waste_bp
 from backend.routes.prediction import prediction_bp
 from backend.routes.recommendation import recommendation_bp
 from backend.routes.data import data_bp
+from backend.routes.preparation import preparation_bp
 
 
 app = Flask(__name__)
@@ -42,6 +43,7 @@ app.register_blueprint(waste_bp)
 app.register_blueprint(prediction_bp)
 app.register_blueprint(recommendation_bp)
 app.register_blueprint(data_bp)
+app.register_blueprint(preparation_bp)
 
 
 # Create database tables

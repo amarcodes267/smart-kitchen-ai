@@ -358,6 +358,54 @@
 
         </div>
 
+        <div class="recommendation-card" style="margin-top: 25px;">
+
+            <h2>Initial Preparation Estimate</h2>
+
+            <p style="color: var(--muted); margin-bottom: 18px;">
+                For a new kitchen, enter the ingredients available and the number of people.
+                Gemini will provide a cautious starting estimate before sales history exists.
+            </p>
+
+            <form id="initialPreparationForm">
+
+                <div class="form-group">
+                    <label for="preparation_ingredients">Available Ingredients</label>
+                    <textarea
+                        id="preparation_ingredients"
+                        rows="4"
+                        maxlength="2000"
+                        placeholder="Example: 8 kg rice, 4 kg vegetables, 2 kg paneer, spices"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="preparation_people">People to Serve</label>
+                    <input
+                        type="number"
+                        id="preparation_people"
+                        min="1"
+                        step="1"
+                        placeholder="Example: 100"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="border: none; cursor: pointer;">
+                    Get Initial Estimate
+                </button>
+
+            </form>
+
+            <div
+                id="initialPreparationResult"
+                class="message"
+                style="margin-top: 20px; white-space: pre-wrap;"
+            ></div>
+
+        </div>
+
     </main>
 
 
@@ -791,6 +839,55 @@
 
             }
         );
+
+
+        document
+            .getElementById("initialPreparationForm")
+            .addEventListener("submit", async function(event) {
+                event.preventDefault();
+
+                const ingredients = document
+                    .getElementById("preparation_ingredients")
+                    .value
+                    .trim();
+                const people = Number(
+                    document.getElementById("preparation_people").value
+                );
+                const result = document.getElementById(
+                    "initialPreparationResult"
+                );
+
+                if (!ingredients || !Number.isInteger(people) || people < 1) {
+                    result.textContent =
+                        "Enter the available ingredients and a whole number of people.";
+                    result.className = "message error";
+                    return;
+                }
+
+                result.textContent = "Gemini is preparing an estimate...";
+                result.className = "message";
+
+                try {
+                    const response = await fetch("/api/preparation/", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ingredients, people })
+                    });
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(
+                            data.message || "Unable to generate an estimate."
+                        );
+                    }
+
+                    result.textContent = data.estimate;
+                    result.className = "message success";
+                } catch (error) {
+                    result.textContent = error.message || String(error);
+                    result.className = "message error";
+                }
+            });
 
 
         // -----------------------------------------
