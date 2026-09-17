@@ -1,17 +1,15 @@
-Flask==3.1.0
-Flask-SQLAlchemy==3.1.1
-psycopg2-binary==2.9.10
-python-dotenv==1.0.1
+Flask
+Flask-SQLAlchemy
+psycopg2-binary
+python-dotenv
 
-pandas==3.0.5
-numpy==1.26.4
-scikit-learn==1.9.0
-xgboost==3.4.1
-joblib==1.5.3
+pandas
+numpy
+scikit-learn
+xgboost
+joblib
 
-ortools==9.12.4544
+google-generativeai
 
-google-generativeai==0.8.4
-
-gunicorn==23.0.0
-pytest==9.1.1
+gunicorn
+pytest
