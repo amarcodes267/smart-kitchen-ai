@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 
 from backend.utils.database import db
@@ -9,8 +10,7 @@ from backend.services.waste_service import (
     get_waste_by_item,
     get_high_waste_items
 )
-
-from datetime import datetime
+from backend.services.waste_analytics_service import WasteAnalytics, CostOptimizer
 
 
 waste_bp = Blueprint(
@@ -372,15 +372,69 @@ def delete_waste(waste_id):
             )
         }), 404
 
-    db.session.delete(waste)
+    try:
+        db.session.delete(waste)
+        db.session.commit()
 
-    db.session.commit()
+        return jsonify({
+            "success": True,
+            "message": (
+                "Waste record deleted successfully."
+            )
+        })
+    except Exception as error:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Failed to delete waste record: {str(error)}"
+        }), 500
 
-    return jsonify({
 
-        "success": True,
+# -------------------------
+# Waste Analytics
+# -------------------------
 
-        "message": (
-            "Waste record deleted successfully."
-        )
-    })
+@waste_bp.route(
+    "/<int:kitchen_id>/analytics",
+    methods=["GET"]
+)
+def waste_analytics(kitchen_id):
+    try:
+        days = int(request.args.get("days", 30))
+        days = max(1, min(days, 365))
+    except (TypeError, ValueError):
+        days = 30
+
+    try:
+        analytics = WasteAnalytics()
+        result = analytics.analyze_kitchen_waste(kitchen_id, days)
+        return jsonify({"success": True, "analytics": result})
+    except ValueError as error:
+        return jsonify({"success": False, "message": str(error)}), 404
+    except Exception as error:
+        return jsonify({"success": False, "message": str(error)}), 500
+
+
+# -------------------------
+# Cost Optimization
+# -------------------------
+
+@waste_bp.route(
+    "/<int:kitchen_id>/costs",
+    methods=["GET"]
+)
+def cost_optimization(kitchen_id):
+    try:
+        days = int(request.args.get("days", 30))
+        days = max(1, min(days, 365))
+    except (TypeError, ValueError):
+        days = 30
+
+    try:
+        optimizer = CostOptimizer()
+        result = optimizer.analyze_costs(kitchen_id, days)
+        return jsonify({"success": True, "costs": result})
+    except ValueError as error:
+        return jsonify({"success": False, "message": str(error)}), 404
+    except Exception as error:
+        return jsonify({"success": False, "message": str(error)}), 500

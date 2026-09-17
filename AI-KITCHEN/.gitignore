@@ -23,6 +23,10 @@ instance/
 
 # Data
 data/processed/
+*.db
+*.sqlite
+*.sqlite3
+
 
 # IDE / Editor
 .vscode/

@@ -3,6 +3,7 @@ from sqlalchemy import func
 from backend.models.waste import Waste
 from backend.models.sales import Sales
 from backend.models.menu import MenuItem
+from backend.utils.database import db
 
 
 def get_waste_summary(kitchen_id):
@@ -88,7 +89,7 @@ def get_waste_by_item(kitchen_id):
 
     for item_id, total_waste, total_cost in results:
 
-        menu_item = MenuItem.query.get(item_id)
+        menu_item = db.session.get(MenuItem, item_id) if item_id else None
 
         waste_items.append({
             "menu_item_id": item_id,

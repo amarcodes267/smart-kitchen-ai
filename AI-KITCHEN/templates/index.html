@@ -83,35 +83,56 @@
 
 
             <!-- =========================
-                 Feature Card
+                 Hero Food Image
             ========================== -->
 
-            <div class="hero-card">
+            <div class="hero-image-container">
+                <img
+                    src="{{ url_for('static', filename='images/hero-food.png') }}"
+                    alt="AI Kitchen Food Preparation"
+                    class="hero-food-img"
+                >
+            </div>
 
-                <div class="card-icon">
-                    🤖
-                </div>
+        </section>
 
-                <h2>
-                    Smart Preparation
-                </h2>
 
-                <p>
-                    Predict tomorrow's demand and
-                    calculate the recommended amount
-                    of food to prepare.
-                </p>
+        <!-- =========================
+             Smart Preparation Preview
+        ========================== -->
 
-                <div class="prediction-preview">
+        <section class="smart-prep-section">
 
-                    <div>
-                        <span>Predicted Demand</span>
-                        <strong>200 servings</strong>
+            <div class="smart-prep-container">
+
+                <div class="hero-card">
+
+                    <div class="card-icon">
+                        🤖
                     </div>
 
-                    <div>
-                        <span>Recommended</span>
-                        <strong>190 servings</strong>
+                    <h2>
+                        Smart Preparation
+                    </h2>
+
+                    <p>
+                        Predict tomorrow's demand and
+                        calculate the recommended amount
+                        of food to prepare.
+                    </p>
+
+                    <div class="prediction-preview">
+
+                        <div>
+                            <span>Predicted Demand</span>
+                            <strong>200 servings</strong>
+                        </div>
+
+                        <div>
+                            <span>Recommended</span>
+                            <strong>190 servings</strong>
+                        </div>
+
                     </div>
 
                 </div>
@@ -200,25 +221,6 @@
                         Calculate how much food should
                         actually be prepared based on
                         demand and waste patterns.
-                    </p>
-
-                </div>
-
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">
-                        🧠
-                    </div>
-
-                    <h3>
-                        AI Recommendations
-                    </h3>
-
-                    <p>
-                        Gemini provides easy-to-understand
-                        recommendations for kitchen
-                        managers.
                     </p>
 
                 </div>
@@ -314,8 +316,9 @@
                     </h3>
 
                     <p>
-                        Follow AI recommendations to
-                        reduce unnecessary food waste.
+                        Follow demand predictions and
+                        waste insights to reduce
+                        unnecessary food waste.
                     </p>
 
                 </div>

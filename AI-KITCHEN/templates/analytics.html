@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sales Analytics | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='js/kitchen.js') }}"></script>
+
+    <style>
+        .page-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .kitchen-select {
+            padding: 9px 16px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .period-group {
+            display: flex;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            overflow: hidden;
+        }
+
+        .period-btn {
+            border: none;
+            background: transparent;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .period-btn.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-icon {
+            font-size: 2.2rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background);
+        }
+
+        .kpi-info span {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .kpi-info strong {
+            font-size: 1.6rem;
+            color: #FFFFFF;
+            font-weight: 700;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .analytics-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .analytics-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-title-row h2 {
+            font-size: 1.15rem;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        .seller-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .seller-item:last-child {
+            border-bottom: none;
+        }
+
+        .seller-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rank-badge {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: var(--background);
+            color: var(--muted);
+        }
+
+        .rank-badge.top-1 {
+            background: #fef08a;
+            color: #854d0e;
+        }
+
+        .rank-badge.top-2 {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .rank-badge.top-3 {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .seller-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .seller-stats {
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .seller-revenue {
+            font-weight: 700;
+            color: var(--primary-dark);
+            text-align: right;
+        }
+
+        .seller-orders {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .badge-popular {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-moderate {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-low {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-no_sales {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 35px 20px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 950px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVIGATION
+    ========================== -->
+    <nav class="navbar">
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/predictions">Predictions</a>
+            <a href="/sales">Sales</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/waste">Waste</a>
+            <a href="/menu">Menu</a>
+        </div>
+    </nav>
+
+
+    <!-- =========================
+         MAIN CONTAINER
+    ========================== -->
+    <main class="page-container">
+
+        <div class="page-header-row">
+            <div>
+                <span class="badge">Sales Analytics</span>
+                <h1 style="font-size: 1.8rem; margin: 6px 0; color: var(--secondary);">
+                    Sales Performance & Menu Intelligence
+                </h1>
+                <p style="color: var(--muted); margin: 0; font-size: 0.95rem;">
+                    Analyze order volume, peak demand periods, top-selling dishes, and menu profitability.
+                </p>
+            </div>
+
+            <div class="controls-row">
+                <select id="kitchenSelect" class="kitchen-select" onchange="onKitchenChange()">
+                    <option value="">Loading kitchens...</option>
+                </select>
+
+                <div class="period-group">
+                    <button class="period-btn" data-days="7" onclick="setPeriod(7)">7D</button>
+                    <button class="period-btn" data-days="14" onclick="setPeriod(14)">14D</button>
+                    <button class="period-btn active" data-days="30" onclick="setPeriod(30)">30D</button>
+                    <button class="period-btn" data-days="90" onclick="setPeriod(90)">90D</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =========================
+             KPI SUMMARY CARDS
+        ========================== -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon">📦</div>
+                <div class="kpi-info">
+                    <span>Total Orders</span>
+                    <strong id="kpiOrders">0</strong>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon">💰</div>
+                <div class="kpi-info">
+                    <span>Total Revenue</span>
+                    <strong id="kpiRevenue">₹0</strong>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon">📈</div>
+                <div class="kpi-info">
+                    <span>Daily Average</span>
+                    <strong id="kpiDailyAvg">0</strong>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon">📅</div>
+                <div class="kpi-info">
+                    <span>Active Sales Days</span>
+                    <strong id="kpiActiveDays">0</strong>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =========================
+             ANALYTICS CHARTS & SELLERS
+        ========================== -->
+        <div class="analytics-grid">
+            <!-- Daily Trend Chart -->
+            <div class="analytics-card">
+                <div class="card-title-row">
+                    <h2>📊 Daily Sales Trend</h2>
+                    <span id="chartPeriodLabel" style="font-size: 0.85rem; color: var(--muted);">Last 30 Days</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Best Sellers Card -->
+            <div class="analytics-card">
+                <div class="card-title-row">
+                    <h2>🏆 Top Sellers</h2>
+                </div>
+                <div id="bestSellersContainer">
+                    <div class="empty-state">Loading top sellers...</div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Second Row: Underperforming Items & Peak Periods -->
+        <div class="analytics-grid" style="margin-bottom: 25px;">
+            <!-- Peak Days -->
+            <div class="analytics-card">
+                <div class="card-title-row">
+                    <h2>⚡ Peak Sales Days</h2>
+                    <span style="font-size: 0.85rem; color: var(--muted);">Highest order volume</span>
+                </div>
+                <div id="peakDaysContainer">
+                    <div class="empty-state">Loading peak periods...</div>
+                </div>
+            </div>
+
+            <!-- Underperforming Items -->
+            <div class="analytics-card">
+                <div class="card-title-row">
+                    <h2>⚠️ Low-Velocity Items</h2>
+                    <span style="font-size: 0.85rem; color: var(--muted);">Candidates for review</span>
+                </div>
+                <div id="worstSellersContainer">
+                    <div class="empty-state">Loading underperforming items...</div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- =========================
+             MENU INTELLIGENCE TABLE
+        ========================== -->
+        <div class="analytics-card full-width">
+            <div class="card-title-row">
+                <h2>🍽️ Menu Intelligence & Operational Strategy</h2>
+            </div>
+            <div id="menuIntelligenceContainer">
+                <div class="empty-state">Loading menu intelligence...</div>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- =========================
+         CHART.JS & SCRIPT
+    ========================== -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <script>
+        let currentKitchenId = null;
+        let selectedDays = 30;
+        let chartInstance = null;
+
+        // Initialize on load
+        document.addEventListener("DOMContentLoaded", async () => {
+            await initKitchens();
+            await loadAnalytics();
+        });
+
+        async function initKitchens() {
+            const select = document.getElementById("kitchenSelect");
+            try {
+                const res = await fetch("/api/kitchen/", { cache: "no-store" });
+                const data = await res.json();
+                if (data.success && data.kitchens && data.kitchens.length > 0) {
+                    select.innerHTML = data.kitchens.map(k => `
+                        <option value="${k.id}">${k.name} (#${k.id})</option>
+                    `).join("");
+
+                    const stored = localStorage.getItem("kitchen_id");
+                    const matched = data.kitchens.find(k => String(k.id) === String(stored));
+                    if (matched) {
+                        currentKitchenId = matched.id;
+                    } else {
+                        // Default to latest kitchen or first kitchen
+                        currentKitchenId = data.kitchens[data.kitchens.length - 1].id;
+                    }
+                    select.value = String(currentKitchenId);
+                    localStorage.setItem("kitchen_id", String(currentKitchenId));
+                } else {
+                    select.innerHTML = `<option value="">No kitchens found</option>`;
+                }
+            } catch (err) {
+                console.error("Error loading kitchens:", err);
+                select.innerHTML = `<option value="">Error loading kitchens</option>`;
+            }
+        }
+
+        async function onKitchenChange() {
+            const select = document.getElementById("kitchenSelect");
+            currentKitchenId = select.value;
+            if (currentKitchenId) {
+                localStorage.setItem("kitchen_id", String(currentKitchenId));
+                await loadAnalytics();
+            }
+        }
+
+        function setPeriod(days) {
+            selectedDays = days;
+            document.querySelectorAll(".period-btn").forEach(btn => {
+                btn.classList.toggle("active", Number(btn.getAttribute("data-days")) === days);
+            });
+            document.getElementById("chartPeriodLabel").textContent = `Last ${days} Days`;
+            loadAnalytics();
+        }
+
+        async function loadAnalytics() {
+            if (!currentKitchenId) {
+                currentKitchenId = localStorage.getItem("kitchen_id");
+            }
+            if (!currentKitchenId) return;
+
+            try {
+                // Fetch Sales Analytics
+                const res = await fetch(`/api/analytics/sales/kitchen/${currentKitchenId}?days=${selectedDays}`, { cache: "no-store" });
+                const data = await res.json();
+
+                if (data.success && data.analytics) {
+                    renderSalesAnalytics(data.analytics);
+                } else {
+                    renderEmptySalesState();
+                }
+
+                // Fetch Menu Intelligence
+                const menuRes = await fetch(`/api/analytics/menu/kitchen/${currentKitchenId}`, { cache: "no-store" });
+                const menuData = await menuRes.json();
+                if (menuData.success && menuData.analytics) {
+                    renderMenuIntelligence(menuData.analytics);
+                }
+            } catch (err) {
+                console.error("Analytics fetch error:", err);
+                renderEmptySalesState();
+            }
+        }
+
+        function renderSalesAnalytics(analytics) {
+            const summary = analytics.summary || {};
+
+            // Render KPI cards
+            document.getElementById("kpiOrders").textContent = Math.round(summary.total_orders || 0).toLocaleString();
+            document.getElementById("kpiRevenue").textContent = "₹" + Math.round(summary.total_revenue || 0).toLocaleString();
+            document.getElementById("kpiDailyAvg").textContent = (summary.avg_daily_orders || 0).toFixed(1) + " /day";
+            document.getElementById("kpiActiveDays").textContent = (summary.days_with_sales || 0) + " days";
+
+            // Render Chart
+            renderChart(analytics.daily_breakdown || []);
+
+            // Render Best Sellers
+            const bestContainer = document.getElementById("bestSellersContainer");
+            const bestSellers = analytics.best_sellers || [];
+            if (bestSellers.length > 0) {
+                bestContainer.innerHTML = bestSellers.map((item, idx) => `
+                    <div class="seller-item">
+                        <div class="seller-left">
+                            <span class="rank-badge ${idx === 0 ? 'top-1' : idx === 1 ? 'top-2' : idx === 2 ? 'top-3' : ''}">#${idx + 1}</span>
+                            <div>
+                                <div class="seller-name">${item.name}</div>
+                                <div class="seller-stats">${item.days_sold || 1} active days · ~${item.avg_daily_orders || 0}/day</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="seller-revenue">₹${Math.round(item.total_revenue || 0).toLocaleString()}</div>
+                            <div class="seller-orders">${Math.round(item.total_orders || 0)} orders</div>
+                        </div>
+                    </div>
+                `).join("");
+            } else {
+                bestContainer.innerHTML = `<div class="empty-state">No sales recorded in this period.</div>`;
+            }
+
+            // Render Peak Days
+            const peakContainer = document.getElementById("peakDaysContainer");
+            const peakDays = analytics.peak_days || [];
+            if (peakDays.length > 0) {
+                peakContainer.innerHTML = peakDays.map((d, idx) => `
+                    <div class="seller-item">
+                        <div class="seller-left">
+                            <span class="rank-badge ${idx === 0 ? 'top-1' : ''}">⚡</span>
+                            <div>
+                                <div class="seller-name">${d.date}</div>
+                                <div class="seller-stats">Peak Volume Day</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="seller-revenue">₹${Math.round(d.revenue || 0).toLocaleString()}</div>
+                            <div class="seller-orders">${Math.round(d.orders || 0)} orders</div>
+                        </div>
+                    </div>
+                `).join("");
+            } else {
+                peakContainer.innerHTML = `<div class="empty-state">No sales data available.</div>`;
+            }
+
+            // Render Underperforming Sellers
+            const worstContainer = document.getElementById("worstSellersContainer");
+            const worstSellers = analytics.worst_sellers || [];
+            if (worstSellers.length > 0) {
+                worstContainer.innerHTML = worstSellers.map(item => `
+                    <div class="seller-item">
+                        <div class="seller-left">
+                            <span class="rank-badge">📉</span>
+                            <div>
+                                <div class="seller-name">${item.name}</div>
+                                <div class="seller-stats">Low transaction velocity</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="seller-revenue">₹${Math.round(item.total_revenue || 0).toLocaleString()}</div>
+                            <div class="seller-orders">${Math.round(item.total_orders || 0)} orders</div>
+                        </div>
+                    </div>
+                `).join("");
+            } else {
+                worstContainer.innerHTML = `<div class="empty-state">No low-velocity items identified.</div>`;
+            }
+        }
+
+        function renderChart(dailyBreakdown) {
+            const canvas = document.getElementById("salesTrendChart");
+            if (!canvas) return;
+
+            if (chartInstance) {
+                chartInstance.destroy();
+                chartInstance = null;
+            }
+
+            if (!dailyBreakdown || dailyBreakdown.length === 0) {
+                canvas.parentElement.innerHTML = `<div class="empty-state" style="padding-top:100px;">No daily sales recorded for this period.</div><canvas id="salesTrendChart" style="display:none;"></canvas>`;
+                return;
+            }
+
+            const dates = dailyBreakdown.map(d => d.date);
+            const orders = dailyBreakdown.map(d => d.orders);
+            const revenues = dailyBreakdown.map(d => d.revenue);
+
+            const ctx = canvas.getContext("2d");
+            chartInstance = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: "Orders",
+                            data: orders,
+                            backgroundColor: "rgba(37, 99, 235, 0.85)",
+                            borderRadius: 6,
+                            yAxisID: "y",
+                        },
+                        {
+                            label: "Revenue (₹)",
+                            data: revenues,
+                            type: "line",
+                            borderColor: "#78350F",
+                            backgroundColor: "rgba(120, 53, 15, 0.12)",
+                            tension: 0.35,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: "#78350F",
+                            yAxisID: "y1",
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: "index",
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: "top",
+                            labels: {
+                                font: { weight: "bold" },
+                                usePointStyle: true,
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false }
+                        },
+                        y: {
+                            type: "linear",
+                            position: "left",
+                            title: { display: true, text: "Orders" },
+                            beginAtZero: true,
+                        },
+                        y1: {
+                            type: "linear",
+                            position: "right",
+                            title: { display: true, text: "Revenue (₹)" },
+                            grid: { drawOnChartArea: false },
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderMenuIntelligence(menuAnalytics) {
+            const container = document.getElementById("menuIntelligenceContainer");
+            const items = menuAnalytics.items || [];
+
+            if (items.length === 0) {
+                container.innerHTML = `<div class="empty-state">No menu items configured for this kitchen.</div>`;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="table-wrapper">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Performance Status</th>
+                                <th>Selling Price</th>
+                                <th>Cost / Serving</th>
+                                <th>Total Sold</th>
+                                <th>Revenue</th>
+                                <th>AI Strategy Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td><strong>${item.name}</strong></td>
+                                    <td>
+                                        <span class="badge-status badge-${item.status}">
+                                            ${item.status.replace("_", " ")}
+                                        </span>
+                                    </td>
+                                    <td>₹${item.price || 0}</td>
+                                    <td>₹${item.cost_per_serving || 0}</td>
+                                    <td>${Math.round(item.total_orders || 0)} portions</td>
+                                    <td><strong>₹${Math.round(item.total_revenue || 0).toLocaleString()}</strong></td>
+                                    <td style="color: var(--muted); font-size: 0.88rem;">${item.recommendation}</td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderEmptySalesState() {
+            document.getElementById("kpiOrders").textContent = "0";
+            document.getElementById("kpiRevenue").textContent = "₹0";
+            document.getElementById("kpiDailyAvg").textContent = "0 /day";
+            document.getElementById("kpiActiveDays").textContent = "0 days";
+
+            document.getElementById("bestSellersContainer").innerHTML = `<div class="empty-state">No sales data recorded yet.</div>`;
+            document.getElementById("worstSellersContainer").innerHTML = `<div class="empty-state">No sales data recorded yet.</div>`;
+            document.getElementById("peakDaysContainer").innerHTML = `<div class="empty-state">No sales data recorded yet.</div>`;
+            renderChart([]);
+        }
+    </script>
+
+</body>
+</html>

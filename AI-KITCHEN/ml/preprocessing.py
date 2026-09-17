@@ -1,6 +1,10 @@
 from pathlib import Path
-
 import pandas as pd
+
+try:
+    from .feature_config import get_feature_columns
+except ImportError:
+    from feature_config import get_feature_columns
 
 
 # =========================================================
@@ -8,10 +12,12 @@ import pandas as pd
 # =========================================================
 
 BASE_DIR = Path(__file__).resolve().parents[1]
+RAW_DATA_DIR = BASE_DIR / "data" / "raw"
+PROCESSED_DATA_DIR = BASE_DIR / "data" / "processed"
 
-DATA_DIR = BASE_DIR / "data" / "raw"
-
-TRAIN_PATH = DATA_DIR / "kitchen_data.csv"
+DAILY_SALES_PATH = RAW_DATA_DIR / "kitchen_sales_daily.csv"
+LEGACY_TRAIN_PATH = RAW_DATA_DIR / "kitchen_data.csv"
+PROCESSED_OUTPUT_PATH = PROCESSED_DATA_DIR / "training_data.csv"
 
 
 # =========================================================
@@ -19,78 +25,18 @@ TRAIN_PATH = DATA_DIR / "kitchen_data.csv"
 # =========================================================
 
 def load_training_data():
-
-    print("Loading food demand dataset...")
-
-    if not TRAIN_PATH.exists():
-
-        raise FileNotFoundError(
-            f"train.csv not found at: {TRAIN_PATH}"
-        )
-
-    df = pd.read_csv(TRAIN_PATH)
-
-    print(
-        f"Loaded {len(df)} records."
-    )
-
-    return df
-
-
-# =========================================================
-# BASIC CLEANING
-# =========================================================
-
-def clean_data(df):
-
-    df = df.copy()
-
-    # Remove duplicate rows
-    df = df.drop_duplicates()
-
-    # Convert numeric columns
-    numeric_columns = [
-        "week",
-        "center_id",
-        "meal_id",
-        "checkout_price",
-        "base_price",
-        "emailer_for_promotion",
-        "homepage_featured",
-        "num_orders"
-    ]
-
-    for column in numeric_columns:
-
-        if column in df.columns:
-
-            df[column] = pd.to_numeric(
-                df[column],
-                errors="coerce"
-            )
-
-
-    # Remove rows where target is missing
-    if "num_orders" in df.columns:
-
-        df = df.dropna(
-            subset=["num_orders"]
-        )
-
-
-    # Fill missing values
-    for column in numeric_columns:
-
-        if column in df.columns:
-
-            df[column] = df[column].fillna(0)
-
-
-    print(
-        f"After cleaning: {len(df)} records."
-    )
-
-    return df
+    if DAILY_SALES_PATH.exists():
+        print(f"Loading daily kitchen sales dataset from: {DAILY_SALES_PATH}")
+        df = pd.read_csv(DAILY_SALES_PATH)
+        print(f"Loaded {len(df)} records.")
+        return df
+    elif LEGACY_TRAIN_PATH.exists():
+        print(f"Loading legacy food demand dataset from: {LEGACY_TRAIN_PATH}")
+        df = pd.read_csv(LEGACY_TRAIN_PATH)
+        print(f"Loaded {len(df)} records.")
+        return df
+    else:
+        raise FileNotFoundError(f"No training data found in {RAW_DATA_DIR}")
 
 
 # =========================================================
@@ -98,100 +44,65 @@ def clean_data(df):
 # =========================================================
 
 def create_features(df):
-
     df = df.copy()
 
+    # Time-series daily kitchen sales format
+    if "date" in df.columns and "quantity_sold" in df.columns:
+        df["date"] = pd.to_datetime(df["date"])
+        sort_cols = [c for c in ["kitchen_id", "menu_item_id", "date"] if c in df.columns]
+        if not sort_cols:
+            sort_cols = ["date"]
+        df = df.sort_values(sort_cols)
 
-    # -----------------------------------------------------
-    # Price Difference
-    # -----------------------------------------------------
+        df["day_of_week"] = df["date"].dt.dayofweek
+        df["month"] = df["date"].dt.month
 
-    df["price_difference"] = (
-        df["checkout_price"]
-        - df["base_price"]
-    )
+        if "kitchen_id" in df.columns and "menu_item_id" in df.columns:
+            df["previous_sales"] = df.groupby(["kitchen_id", "menu_item_id"])["quantity_sold"].shift(1)
+            df["rolling_7_day_avg"] = df.groupby(["kitchen_id", "menu_item_id"])["quantity_sold"].transform(
+                lambda s: s.rolling(window=7, min_periods=1).mean()
+            )
+        else:
+            df["previous_sales"] = df["quantity_sold"].shift(1)
+            df["rolling_7_day_avg"] = df["quantity_sold"].rolling(window=7, min_periods=1).mean()
 
+        df = df.dropna(subset=["previous_sales", "rolling_7_day_avg", "quantity_sold"])
 
-    # -----------------------------------------------------
-    # Discount Percentage
-    # -----------------------------------------------------
+        feature_columns = get_feature_columns()
+        X = df[feature_columns]
+        y = df["quantity_sold"]
 
+        # Preserve date for chronological train/test split
+        X_with_date = X.copy()
+        X_with_date["date"] = df["date"]
+
+        PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        export_df = X.copy()
+        export_df["quantity_sold"] = y
+        export_df["date"] = df["date"]
+        export_df.to_csv(PROCESSED_OUTPUT_PATH, index=False)
+
+        return X_with_date, y, feature_columns
+
+    # Legacy Kaggle Food Delivery format
+    df["price_difference"] = df["checkout_price"] - df["base_price"]
     df["discount_percentage"] = 0.0
-
     mask = df["base_price"] != 0
-
     df.loc[mask, "discount_percentage"] = (
-
-        (
-            df.loc[mask, "base_price"]
-            - df.loc[mask, "checkout_price"]
-        )
-        /
-        df.loc[mask, "base_price"]
-        * 100
-
+        (df.loc[mask, "base_price"] - df.loc[mask, "checkout_price"])
+        / df.loc[mask, "base_price"] * 100
     )
+    df["promotion_score"] = df.get("emailer_for_promotion", 0) + df.get("homepage_featured", 0)
+    df["week_mod_4"] = df["week"] % 4
 
-
-    # -----------------------------------------------------
-    # Promotion Score
-    # -----------------------------------------------------
-
-    df["promotion_score"] = (
-
-        df["emailer_for_promotion"]
-        +
-        df["homepage_featured"]
-
-    )
-
-
-    # -----------------------------------------------------
-    # Week Information
-    # -----------------------------------------------------
-
-    df["week_mod_4"] = (
-        df["week"] % 4
-    )
-
-
-    # -----------------------------------------------------
-    # Select Features
-    # -----------------------------------------------------
-
-    feature_columns = [
-
-        "week",
-
-        "center_id",
-
-        "meal_id",
-
-        "checkout_price",
-
-        "base_price",
-
-        "emailer_for_promotion",
-
-        "homepage_featured",
-
-        "price_difference",
-
-        "discount_percentage",
-
-        "promotion_score",
-
-        "week_mod_4"
-
+    legacy_features = [
+        "week", "center_id", "meal_id", "checkout_price", "base_price",
+        "emailer_for_promotion", "homepage_featured", "price_difference",
+        "discount_percentage", "promotion_score", "week_mod_4"
     ]
-
-
-    X = df[feature_columns]
-
+    X = df[legacy_features]
     y = df["num_orders"]
-
-
-    return X, y, feature_columns
+    return X, y, legacy_features
 
 
 # =========================================================
@@ -199,65 +110,27 @@ def create_features(df):
 # =========================================================
 
 def preprocess_data():
-
     print("\n==============================")
-    print("PREPROCESSING FOOD DATA")
+    print("PREPROCESSING FOOD DEMAND DATA")
     print("==============================\n")
 
-
-    # Load
     df = load_training_data()
-
-
-    # Clean
-    df = clean_data(df)
-
-
-    # Create features
-    X, y, feature_columns = create_features(
-        df
-    )
-
+    X, y, feature_columns = create_features(df)
 
     print("\nFeatures created:")
-
     for feature in feature_columns:
+        print(f" - {feature}")
 
-        print(
-            f" - {feature}"
-        )
-
-
-    print(
-        f"\nFeature shape: {X.shape}"
-    )
-
-    print(
-        f"Target shape: {y.shape}"
-    )
-
+    print(f"\nFeature shape: {X.shape}")
+    print(f"Target shape: {y.shape}")
 
     return X, y, feature_columns
 
 
-# =========================================================
-# TEST
-# =========================================================
-
 if __name__ == "__main__":
-
     X, y, features = preprocess_data()
-
     print("\nPreprocessing completed successfully.")
-
     print("\nFirst 5 feature rows:")
-
-    print(
-        X.head()
-    )
-
+    print(X.head())
     print("\nFirst 5 target values:")
-
-    print(
-        y.head()
-    )
+    print(y.head())

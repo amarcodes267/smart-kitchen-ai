@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Shopping List | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='js/kitchen.js') }}"></script>
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/inventory">Inventory</a>
+        </div>
+
+    </nav>
+
+
+    <main class="page-container">
+
+        <div class="page-header">
+
+            <span class="badge">
+                Smart Shopping
+            </span>
+
+            <h1>
+                Recommended Purchase List
+            </h1>
+
+            <p>
+                AI-generated shopping list based on
+                predicted demand and current inventory.
+            </p>
+
+        </div>
+
+
+        <div id="shoppingContainer" class="loading">
+            Loading...
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const kitchenId = localStorage.getItem("kitchen_id");
+        let kitchenId = localStorage.getItem("kitchen_id");
+
+        async function loadShoppingList() {
+            if (!kitchenId && window.ensureKitchenId) {
+                kitchenId = await window.ensureKitchenId();
+            }
+            if (!kitchenId) {
+                document.getElementById('shoppingContainer').innerHTML = '<div class="empty-state">Please create a kitchen first.</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/shopping/kitchen/${kitchenId}`);
+                const data = await res.json();
+                if (!data.success) return;
+
+                const list = data.shopping_list;
+                const container = document.getElementById('shoppingContainer');
+
+                if (!list.items || list.items.length === 0) {
+                    container.innerHTML = '<div class="empty-state">No items to display.</div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <strong>Summary:</strong>
+                        ${list.summary.to_buy} to buy ·
+                        ${list.summary.reduce_usage} reduce usage ·
+                        ${list.summary.no_purchase} no purchase needed
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Ingredient</th>
+                                    <th>Current</th>
+                                    <th>Required</th>
+                                    <th>Action</th>
+                                    <th>Priority</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${list.items.map(i => `
+                                    <tr>
+                                        <td>${i.ingredient}</td>
+                                        <td>${i.current} ${i.unit}</td>
+                                        <td>${i.required} ${i.unit}</td>
+                                        <td>${i.action}</td>
+                                        <td>
+                                            <span style="
+                                                font-size: 0.75rem;
+                                                font-weight: 700;
+                                                text-transform: uppercase;
+                                                color: ${i.priority === 'high' ? '#ef4444' : i.priority === 'medium' ? '#f59e0b' : i.priority === 'low' ? '#3b82f6' : '#64748b'};
+                                            ">${i.priority}</span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Shopping list error:', error);
+            }
+        }
+
+        loadShoppingList();
+
+    </script>
+
+</body>
+</html>

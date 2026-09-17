@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Alerts Center | AI Kitchen</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+    <script src="{{ url_for('static', filename='js/kitchen.js') }}"></script>
+    <style>
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .alerts-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-btn {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        .alert-card {
+            padding: 20px;
+            margin-bottom: 14px;
+            border-radius: 14px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: transform 0.15s ease;
+        }
+        .alert-card:hover {
+            transform: translateY(-2px);
+        }
+        .alert-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+        .badge-critical, .badge-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .badge-warning, .badge-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .badge-info, .badge-low {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <div class="logo">
+            🍽️ AI Kitchen
+        </div>
+
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/menu">Menu</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+            <a href="/predictions">Predictions</a>
+        </div>
+
+    </nav>
+
+
+    <main class="page-container" style="max-width: 900px; margin: 30px auto; padding: 0 20px;">
+
+        <div class="alerts-header">
+            <div>
+                <span class="badge">Intelligence</span>
+                <h1 style="margin: 8px 0 4px 0; color: #FFFFFF;">🔔 Active Alerts</h1>
+                <p style="color: var(--muted); margin: 0;">
+                    Real-time operational alerts for low stock, waste spikes, and preparation recommendations.
+                </p>
+            </div>
+            <div class="alerts-controls">
+                <button
+                    id="refreshBtn"
+                    class="btn btn-secondary"
+                    onclick="refreshAlerts()"
+                    style="display: inline-flex; align-items: center; gap: 6px;"
+                >
+                    🔄 Refresh Alerts
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+            <button class="filter-btn active" onclick="filterAlerts('all', this)">All (<span id="countAll">0</span>)</button>
+            <button class="filter-btn" onclick="filterAlerts('high', this)">Critical (<span id="countCritical">0</span>)</button>
+            <button class="filter-btn" onclick="filterAlerts('medium', this)">Warnings (<span id="countWarning">0</span>)</button>
+            <button class="filter-btn" onclick="filterAlerts('low', this)">Info (<span id="countInfo">0</span>)</button>
+        </div>
+
+        <div id="alertsContainer" class="loading">
+            Loading alerts...
+        </div>
+
+    </main>
+
+
+    <script>
+        let currentAlerts = [];
+        let currentFilter = 'all';
+
+        const levelBorders = {
+            critical: "#ef4444",
+            high: "#ef4444",
+            warning: "#f59e0b",
+            medium: "#f59e0b",
+            info: "#3b82f6",
+            low: "#3b82f6",
+        };
+
+        const levelIcons = {
+            critical: "🚨",
+            high: "⚠️",
+            warning: "⚡",
+            medium: "📌",
+            info: "💡",
+            low: "ℹ️"
+        };
+
+        async function getActiveKitchenId() {
+            let kid = localStorage.getItem("kitchen_id");
+            if (!kid && window.ensureKitchenId) {
+                kid = await window.ensureKitchenId();
+            }
+            if (!kid) {
+                try {
+                    const r = await fetch('/api/kitchen/');
+                    const d = await r.json();
+                    if (d.success && d.kitchens && d.kitchens.length > 0) {
+                        kid = d.kitchens[0].id;
+                        localStorage.setItem("kitchen_id", kid);
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch default kitchen:', e);
+                }
+            }
+            return kid;
+        }
+
+        async function loadAlerts() {
+            const container = document.getElementById('alertsContainer');
+            const kitchenId = await getActiveKitchenId();
+
+            if (!kitchenId) {
+                container.innerHTML = '<div class="empty-state">Please create or select a kitchen first to view alerts.</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/alerts/kitchen/${kitchenId}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    container.innerHTML = `<div class="empty-state">${data.message || 'Failed to load alerts.'}</div>`;
+                    return;
+                }
+
+                currentAlerts = data.alerts || [];
+                updateCounts(currentAlerts);
+                renderAlerts();
+
+                // Mark read in background
+                fetch(`/api/alerts/kitchen/${kitchenId}/read`, { method: 'POST' }).catch(() => {});
+            } catch (error) {
+                console.error('Alerts error:', error);
+                container.innerHTML = '<div class="empty-state">Failed to connect to alerts service.</div>';
+            }
+        }
+
+        async function refreshAlerts() {
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Analyzing...';
+
+            const kitchenId = await getActiveKitchenId();
+            if (kitchenId) {
+                try {
+                    const res = await fetch(`/api/alerts/kitchen/${kitchenId}/refresh`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.success) {
+                        currentAlerts = data.alerts || [];
+                        updateCounts(currentAlerts);
+                        renderAlerts();
+                    }
+                } catch (e) {
+                    console.error('Refresh failed:', e);
+                }
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '🔄 Refresh Alerts';
+        }
+
+        function updateCounts(alerts) {
+            document.getElementById('countAll').innerText = alerts.length;
+            document.getElementById('countCritical').innerText = alerts.filter(a => a.level === 'critical' || a.level === 'high').length;
+            document.getElementById('countWarning').innerText = alerts.filter(a => a.level === 'warning' || a.level === 'medium').length;
+            document.getElementById('countInfo').innerText = alerts.filter(a => a.level === 'info' || a.level === 'low').length;
+        }
+
+        function filterAlerts(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            renderAlerts();
+        }
+
+        function renderAlerts() {
+            const container = document.getElementById('alertsContainer');
+            let filtered = currentAlerts;
+
+            if (currentFilter === 'high') {
+                filtered = currentAlerts.filter(a => a.level === 'critical' || a.level === 'high');
+            } else if (currentFilter === 'medium') {
+                filtered = currentAlerts.filter(a => a.level === 'warning' || a.level === 'medium');
+            } else if (currentFilter === 'low') {
+                filtered = currentAlerts.filter(a => a.level === 'info' || a.level === 'low');
+            }
+
+            if (!filtered || filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="padding: 40px 20px; text-align: center; background: var(--white); border-radius: 14px; border: 1px solid var(--border);">✅ No alerts for this filter. Kitchen operations are smooth!</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const normLevel = (a.level || 'info').toLowerCase();
+                const badgeClass = `badge-${normLevel}`;
+                const borderColor = levelBorders[normLevel] || '#64748b';
+                const icon = levelIcons[normLevel] || '🔔';
+
+                return `
+                    <div class="alert-card" style="border-left: 5px solid ${borderColor};">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: 10px;">
+                            <div style="display:flex; align-items:center; gap: 10px;">
+                                <span style="font-size: 1.3rem;">${icon}</span>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 1.05rem; color: var(--secondary);">${a.title}</h3>
+                                    <small style="color: var(--muted); font-size: 0.78rem;">${a.category || 'Kitchen Alert'} • ${new Date(a.created_at).toLocaleString()}</small>
+                                </div>
+                            </div>
+                            <span class="alert-badge ${badgeClass}">${normLevel}</span>
+                        </div>
+                        <p style="color: #334155; margin: 12px 0 4px 0; line-height: 1.5; font-size: 0.95rem;">${a.message}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadAlerts);
+    </script>
+
+</body>
+</html>

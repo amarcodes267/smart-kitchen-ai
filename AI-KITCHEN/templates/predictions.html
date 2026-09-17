@@ -28,7 +28,7 @@
         }
 
         .page-header h1 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 5px;
         }
 
@@ -50,7 +50,7 @@
         }
 
         .prediction-card h2 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 20px;
             font-size: 1.2rem;
         }
@@ -64,6 +64,7 @@
             margin-bottom: 7px;
             font-weight: 600;
             font-size: 0.9rem;
+            color: #FFFFFF;
         }
 
         .form-group select,
@@ -74,6 +75,7 @@
             border-radius: 9px;
             outline: none;
             background: var(--white);
+            color: #FFFFFF;
         }
 
         .form-group select:focus,
@@ -107,7 +109,7 @@
         .prediction-number {
             font-size: 4rem;
             font-weight: 800;
-            color: var(--primary-dark);
+            color: #2563EB;
             margin: 15px 0;
         }
 
@@ -136,7 +138,109 @@
         }
 
         .info-box strong {
-            color: var(--secondary);
+            color: #FFFFFF;
+        }
+
+        .ai-explanation {
+            margin-top: 20px;
+            padding: 22px;
+            border-radius: 14px;
+            background: #000000;
+            border: 1px solid rgba(37, 99, 235, 0.35);
+            color: var(--white);
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(17, 24, 39, 0.2);
+        }
+
+        .ai-explanation-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .ai-explanation-header h3 {
+            margin: 0;
+            color: var(--white);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-badge {
+            background: rgba(37, 99, 235, 0.25);
+            color: #93C5FD;
+            border: 1px solid rgba(37, 99, 235, 0.45);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            border-left: 3px solid #2563EB;
+        }
+
+        .ai-section.recommendation {
+            margin-bottom: 0;
+            border-left-color: #78350F;
+            background: rgba(120, 53, 15, 0.15);
+        }
+
+        .ai-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .ai-section-title.explanation-title {
+            color: #93C5FD;
+        }
+
+        .ai-section-title.recommendation-title {
+            color: #FDBA74;
+        }
+
+        .ai-explanation p {
+            color: #e2e8f0;
+            font-size: 0.88rem;
+            line-height: 1.55;
+            margin: 0;
+        }
+
+        .ai-prep-summary {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            flex-wrap: wrap;
+        }
+
+        .ai-prep-pill {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .ai-prep-pill strong {
+            color: #86EFAC;
         }
 
         .empty-result {
@@ -165,7 +269,7 @@
         .message.success {
             display: block;
             background: #dcfce7;
-            color: #166534;
+            color: #16A34A;
         }
 
         .price-preview {
@@ -183,7 +287,7 @@
         }
 
         .price-preview strong {
-            color: var(--secondary);
+            color: var(--primary);
         }
 
         @media (max-width: 900px) {
@@ -265,9 +369,9 @@
             </h1>
 
             <p>
-                Select a meal and center. The system
-                will automatically use valid information
-                from the food-demand dataset.
+                Select a food item from your menu.
+                The system uses your kitchen's sales
+                history to predict tomorrow's demand.
             </p>
 
         </div>
@@ -298,161 +402,24 @@
                 >
 
 
-                    <!-- Week -->
+                    <!-- Food Item -->
 
                     <div class="form-group">
 
-                        <label for="week">
-                            Prediction Week
-                        </label>
-
-                        <input
-                            type="number"
-                            id="week"
-                            min="1"
-                            value="146"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Center -->
-
-                    <div class="form-group">
-
-                        <label for="center_id">
-                            Fulfillment Center
+                        <label for="menu_item_id">
+                            Food Item
                         </label>
 
                         <select
-                            id="center_id"
+                            id="menu_item_id"
                             required
                         >
 
                             <option value="">
-                                Loading centers...
+                                Loading menu...
                             </option>
 
                         </select>
-
-                    </div>
-
-
-                    <!-- Meal -->
-
-                    <div class="form-group">
-
-                        <label for="meal_id">
-                            Food / Meal
-                        </label>
-
-                        <select
-                            id="meal_id"
-                            required
-                        >
-
-                            <option value="">
-                                Loading meals...
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Price Preview -->
-
-                    <div
-                        id="pricePreview"
-                        class="price-preview"
-                    >
-
-                        <p>
-                            Select a meal to see pricing.
-                        </p>
-
-                    </div>
-
-
-                    <!-- Checkout Price -->
-
-                    <div class="form-group">
-
-                        <label for="checkout_price">
-
-                            Checkout Price (₹)
-
-                        </label>
-
-                        <input
-                            type="number"
-                            id="checkout_price"
-                            min="0"
-                            step="0.01"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Base Price -->
-
-                    <div class="form-group">
-
-                        <label for="base_price">
-
-                            Base Price (₹)
-
-                        </label>
-
-                        <input
-                            type="number"
-                            id="base_price"
-                            min="0"
-                            step="0.01"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Email Promotion -->
-
-                    <div class="checkbox-group">
-
-                        <input
-                            type="checkbox"
-                            id="emailer_for_promotion"
-                        >
-
-                        <label
-                            for="emailer_for_promotion"
-                        >
-
-                            Email Promotion
-
-                        </label>
-
-                    </div>
-
-
-                    <!-- Homepage -->
-
-                    <div class="checkbox-group">
-
-                        <input
-                            type="checkbox"
-                            id="homepage_featured"
-                        >
-
-                        <label
-                            for="homepage_featured"
-                        >
-
-                            Homepage Featured
-
-                        </label>
 
                     </div>
 
@@ -489,7 +456,7 @@
                         Model:
                     </strong>
 
-                    XGBoost Regressor
+                    XGBoost (Sales-Based)
 
                     <br>
 
@@ -497,7 +464,7 @@
                         Target:
                     </strong>
 
-                    Number of Orders
+                    Orders for tomorrow
 
                 </div>
 
@@ -554,10 +521,10 @@
 
 
         // =========================================
-        // Global meal data
+        // Global menu data
         // =========================================
 
-        let meals = [];
+        let menuItems = [];
 
 
         // =========================================
@@ -585,14 +552,14 @@
 
 
         // =========================================
-        // Load Centers
+        // Load Menu from Kitchen
         // =========================================
 
-        async function loadCenters() {
+        async function loadMenu() {
 
-            const centerSelect =
+            const menuSelect =
                 document.getElementById(
-                    "center_id"
+                    "menu_item_id"
                 );
 
 
@@ -600,7 +567,7 @@
 
                 const response =
                     await fetch(
-                        "/api/data/centers"
+                        "/api/menu/" + kitchenId
                     );
 
 
@@ -613,201 +580,64 @@
 
                     throw new Error(
                         data.message ||
-                        "Unable to load centers."
+                        "Unable to load menu."
                     );
 
                 }
 
 
-                centerSelect.innerHTML = `
-
-                    <option value="">
-                        Select center
-                    </option>
-
-                    ${data.centers.map(
-                        center => `
-
-                            <option
-                                value="${center}"
-                            >
-                                Center ${center}
-                            </option>
-
-                        `
-                    ).join("")}
-
-                `;
-
-
-            } catch (error) {
-
-                centerSelect.innerHTML = `
-
-                    <option value="">
-                        Unable to load centers
-                    </option>
-
-                `;
-
-
-                showMessage(
-                    error.message,
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        // =========================================
-        // Load Meals
-        // =========================================
-
-        async function loadMeals() {
-
-            const mealSelect =
-                document.getElementById(
-                    "meal_id"
-                );
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/data/meals"
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok ||
-                    !data.success) {
-
-                    throw new Error(
-                        data.message ||
-                        "Unable to load meals."
-                    );
-
-                }
-
-
-                meals =
-                    data.meals;
-
-
-                mealSelect.innerHTML = `
-
-                    <option value="">
-                        Select food / meal
-                    </option>
-
-                    ${meals.map(
-                        meal => `
-
-                            <option
-                                value="${meal.meal_id}"
-                            >
-                                Meal ${meal.meal_id}
-                            </option>
-
-                        `
-                    ).join("")}
-
-                `;
-
-
-            } catch (error) {
-
-                mealSelect.innerHTML = `
-
-                    <option value="">
-                        Unable to load meals
-                    </option>
-
-                `;
-
-
-                showMessage(
-                    error.message,
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        // =========================================
-        // Update Prices
-        // =========================================
-
-        document
-            .getElementById("meal_id")
-            .addEventListener(
-                "change",
-                function() {
-
-                    const selectedMealId =
-                        Number(
-                            this.value
-                        );
-
-
-                    const selectedMeal =
-                        meals.find(
-                            meal =>
-                                meal.meal_id
-                                ===
-                                selectedMealId
-                        );
-
-
-                    if (!selectedMeal) {
-
-                        return;
-
-                    }
-
-
-                    document.getElementById(
-                        "checkout_price"
-                    ).value =
-                        selectedMeal.checkout_price;
-
-
-                    document.getElementById(
-                        "base_price"
-                    ).value =
-                        selectedMeal.base_price;
-
-
-                    document.getElementById(
-                        "pricePreview"
-                    ).innerHTML = `
-
-                        <p>
-                            Checkout Price:
-                            <strong>
-                                ₹${selectedMeal.checkout_price}
-                            </strong>
-                        </p>
-
-                        <p>
-                            Base Price:
-                            <strong>
-                                ₹${selectedMeal.base_price}
-                            </strong>
-                        </p>
-
+                menuItems =
+                    data.menu_items || [];
+
+                if (menuItems.length === 0) {
+                    menuSelect.innerHTML = `
+                        <option value="">
+                            Add menu items first
+                        </option>
                     `;
-
+                    return;
                 }
-            );
+
+                menuSelect.innerHTML = `
+
+                    <option value="">
+                        Select food item
+                    </option>
+
+                    ${menuItems.map(
+                        item => `
+
+                            <option
+                                value="${item.id}"
+                            >
+                                ${item.name}
+                            </option>
+
+                        `
+                    ).join("")}
+
+                `;
+
+
+            } catch (error) {
+
+                menuSelect.innerHTML = `
+
+                    <option value="">
+                        Unable to load menu
+                    </option>
+
+                `;
+
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
 
 
         // =========================================
@@ -833,76 +663,22 @@
                     // Get values
                     // ---------------------------------
 
-                    const week =
+                    const menuItemId =
                         Number(
                             document.getElementById(
-                                "week"
+                                "menu_item_id"
                             ).value
                         );
-
-
-                    const centerId =
-                        Number(
-                            document.getElementById(
-                                "center_id"
-                            ).value
-                        );
-
-
-                    const mealId =
-                        Number(
-                            document.getElementById(
-                                "meal_id"
-                            ).value
-                        );
-
-
-                    const checkoutPrice =
-                        Number(
-                            document.getElementById(
-                                "checkout_price"
-                            ).value
-                        );
-
-
-                    const basePrice =
-                        Number(
-                            document.getElementById(
-                                "base_price"
-                            ).value
-                        );
-
-
-                    const emailPromotion =
-                        document.getElementById(
-                            "emailer_for_promotion"
-                        ).checked
-                        ? 1
-                        : 0;
-
-
-                    const homepageFeatured =
-                        document.getElementById(
-                            "homepage_featured"
-                        ).checked
-                        ? 1
-                        : 0;
 
 
                     // ---------------------------------
                     // Validate
                     // ---------------------------------
 
-                    if (
-                        week <= 0 ||
-                        centerId <= 0 ||
-                        mealId <= 0 ||
-                        checkoutPrice <= 0 ||
-                        basePrice <= 0
-                    ) {
+                    if (!menuItemId) {
 
                         showMessage(
-                            "Please enter valid values.",
+                            "Please select a food item.",
                             "error"
                         );
 
@@ -930,8 +706,8 @@
                                 </h2>
 
                                 <p>
-                                    XGBoost is analyzing
-                                    the selected food data.
+                                    Analyzing your kitchen's
+                                    sales data.
                                 </p>
 
                             </div>
@@ -964,26 +740,11 @@
                                     body:
                                         JSON.stringify({
 
-                                            week:
-                                                week,
+                                            kitchen_id:
+                                                Number(kitchenId),
 
-                                            center_id:
-                                                centerId,
-
-                                            meal_id:
-                                                mealId,
-
-                                            checkout_price:
-                                                checkoutPrice,
-
-                                            base_price:
-                                                basePrice,
-
-                                            emailer_for_promotion:
-                                                emailPromotion,
-
-                                            homepage_featured:
-                                                homepageFeatured
+                                            menu_item_id:
+                                                menuItemId
 
                                         })
 
@@ -1061,11 +822,11 @@
                                     >
 
                                         <span>
-                                            Week
+                                            Trend
                                         </span>
 
                                         <strong>
-                                            ${week}
+                                            ${prediction.trend || 'stable'} ${prediction.trend_symbol || '→'}
                                         </strong>
 
                                     </div>
@@ -1076,11 +837,11 @@
                                     >
 
                                         <span>
-                                            Meal ID
+                                            Change
                                         </span>
 
                                         <strong>
-                                            ${mealId}
+                                            ${prediction.change_pct || 0}%
                                         </strong>
 
                                     </div>
@@ -1091,11 +852,11 @@
                                     >
 
                                         <span>
-                                            Center
+                                            Previous Avg
                                         </span>
 
                                         <strong>
-                                            ${centerId}
+                                            ${prediction.previous_avg || 0}
                                         </strong>
 
                                     </div>
@@ -1110,7 +871,7 @@
                                         </span>
 
                                         <strong>
-                                            ${prediction.model}
+                                            ${prediction.model || 'XGBoost'}
                                         </strong>
 
                                     </div>
@@ -1118,33 +879,39 @@
                                 </div>
 
 
-                                <div
-                                    style="
-                                        margin-top: 25px;
-                                        padding: 18px;
-                                        background:
-                                            #f0fdf4;
-                                        border-radius:
-                                            12px;
-                                        color:
-                                            #166534;
-                                    "
-                                >
+                                <div class="ai-explanation">
+                                    <div class="ai-explanation-header">
+                                        <h3>💡 AI Decision & Kitchen Recommendation</h3>
+                                        <span class="ai-badge">LLM Operations Guide</span>
+                                    </div>
 
-                                    💡
+                                    <div class="ai-section">
+                                        <div class="ai-section-title explanation-title">
+                                            📊 Model Prediction Explanation
+                                        </div>
+                                        <p>
+                                            ${prediction.ai_explanation || 'The XGBoost model analyzed recent sales velocity and momentum patterns to predict tomorrow\'s demand.'}
+                                        </p>
+                                    </div>
 
-                                    Prepare approximately
-
-                                    <strong>
-                                        ${
-                                            prediction
-                                            .predicted_demand
-                                        }
-                                    </strong>
-
-                                    orders based on
-                                    the XGBoost prediction.
-
+                                    <div class="ai-section recommendation">
+                                        <div class="ai-section-title recommendation-title">
+                                            👨‍🍳 Practical Kitchen Recommendation
+                                        </div>
+                                        <p>
+                                            ${prediction.kitchen_recommendation || 'Prepare target inventory in staggered batches with safety buffer to minimize food waste.'}
+                                        </p>
+                                        ${prediction.recommended_prep ? `
+                                            <div class="ai-prep-summary">
+                                                <div class="ai-prep-pill">
+                                                    Target Prep: <strong>${prediction.recommended_prep} portions</strong>
+                                                </div>
+                                                <div class="ai-prep-pill">
+                                                    Safety Buffer: <strong>+${prediction.safety_buffer || 0} portions</strong>
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
                                 </div>
 
                             </div>
@@ -1158,7 +925,7 @@
 
                             <div
                                 class="empty-result"
-                            >
+                                >
 
                                 <div>
 
@@ -1196,9 +963,16 @@
         // Initialize
         // =========================================
 
-        loadCenters();
+        const kitchenId =
+            localStorage.getItem("kitchen_id");
 
-        loadMeals();
+        if (kitchenId) {
+            loadMenu();
+        } else {
+            document.getElementById("menu_item_id").innerHTML = `
+                <option value="">Create a kitchen first</option>
+            `;
+        }
 
     </script>
 

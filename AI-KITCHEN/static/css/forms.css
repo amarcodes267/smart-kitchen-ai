@@ -1,4 +1,7 @@
-﻿/* forms.css - common form styles */
+/* forms.css - common form styles */
 .form-field { margin-bottom: 12px; }
 label { display: block; font-weight: 600; }
 input, select, textarea { padding: 8px; width: 100%; box-sizing: border-box; }
+label { display: block; font-weight: 600; color: #F3F4F6; }
+input, select, textarea { padding: 8px; width: 100%; box-sizing: border-box; background: #000000; color: #FFFFFF; border: 1px solid #27272A; }
+

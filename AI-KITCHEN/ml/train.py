@@ -1,15 +1,14 @@
 from pathlib import Path
 
 import joblib
-
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
+import numpy as np
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from xgboost import XGBRegressor
 
 try:
     from .preprocessing import preprocess_data
 except ImportError:
-    # Support direct execution with ``python ml/train.py`` as documented.
+    # Support direct execution with ``python ml/train.py``
     from preprocessing import preprocess_data
 
 
@@ -18,8 +17,8 @@ except ImportError:
 # =========================================================
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-
 MODEL_PATH = BASE_DIR / "ml" / "model.pkl"
+NATIVE_MODEL_PATH = BASE_DIR / "ml" / "model.json"
 
 
 # =========================================================
@@ -27,192 +26,132 @@ MODEL_PATH = BASE_DIR / "ml" / "model.pkl"
 # =========================================================
 
 def train_model():
-
     print("\n===================================")
     print("      AI KITCHEN MODEL TRAINING")
     print("===================================\n")
 
-
     # -----------------------------------------------------
     # Load + preprocess dataset
     # -----------------------------------------------------
-
     print("Preparing training data...")
-
     X, y, feature_columns = preprocess_data()
 
-
-    # -----------------------------------------------------
-    # Check dataset
-    # -----------------------------------------------------
-
     if len(X) < 10:
+        raise ValueError("Not enough training records.")
 
-        raise ValueError(
-            "Not enough training records."
-        )
-
-
-    print(
-        f"\nTotal records: {len(X)}"
-    )
-
-    print(
-        f"Total features: {len(feature_columns)}"
-    )
-
+    print(f"\nTotal records: {len(X)}")
+    print(f"Total features: {len(feature_columns)}")
 
     # -----------------------------------------------------
-    # Train/Test Split
+    # Chronological Temporal Split (Prevents Lookahead Leakage)
     # -----------------------------------------------------
+    if "date" in X.columns:
+        print("\nApplying chronological temporal split (80% train / 20% test)...")
+        cutoff_date = X["date"].quantile(0.8)
+        print(f"Cutoff date: {cutoff_date.date()}")
 
-    X_train, X_test, y_train, y_test = train_test_split(
+        train_mask = X["date"] <= cutoff_date
+        test_mask = X["date"] > cutoff_date
 
-        X,
+        X_train = X.loc[train_mask, feature_columns]
+        X_test = X.loc[test_mask, feature_columns]
+        y_train = y[train_mask]
+        y_test = y[test_mask]
+    else:
+        print("\nApplying sequential chronological split (80% train / 20% test)...")
+        split_idx = int(len(X) * 0.8)
+        feature_df = X[feature_columns] if all(c in X.columns for c in feature_columns) else X
+        X_train = feature_df.iloc[:split_idx]
+        X_test = feature_df.iloc[split_idx:]
+        y_train = y.iloc[:split_idx]
+        y_test = y.iloc[split_idx:]
 
-        y,
-
-        test_size=0.2,
-
-        random_state=42
-    )
-
-
-    print(
-        f"\nTraining records: {len(X_train)}"
-    )
-
-    print(
-        f"Testing records: {len(X_test)}"
-    )
-
+    print(f"Training records: {len(X_train)}")
+    print(f"Testing records:  {len(X_test)}")
 
     # -----------------------------------------------------
     # Create XGBoost Model
     # -----------------------------------------------------
-
     print("\nCreating XGBoost model...")
 
-
     model = XGBRegressor(
-
         n_estimators=100,
-
         max_depth=5,
-
         learning_rate=0.05,
-
         subsample=0.8,
-
         colsample_bytree=0.8,
-
         objective="reg:squarederror",
-
         eval_metric="mae",
-
         random_state=42,
-
         n_jobs=2
     )
-
 
     # -----------------------------------------------------
     # Train
     # -----------------------------------------------------
-
     print("Training model...\n")
-
-
-    model.fit(
-
-        X_train,
-
-        y_train
-    )
-
-
-    print(
-        "Model training completed."
-    )
-
+    model.fit(X_train, y_train)
+    print("Model training completed.")
 
     # -----------------------------------------------------
-    # Test Model
+    # Evaluate Model
     # -----------------------------------------------------
-
     print("\nEvaluating model...")
 
+    pred_train = model.predict(X_train)
+    pred_test = model.predict(X_test)
 
-    predictions = model.predict(
-        X_test
-    )
+    train_mae = mean_absolute_error(y_train, pred_train)
+    train_rmse = np.sqrt(mean_squared_error(y_train, pred_train))
+    train_r2 = r2_score(y_train, pred_train)
 
+    test_mae = mean_absolute_error(y_test, pred_test)
+    test_mse = mean_squared_error(y_test, pred_test)
+    test_rmse = np.sqrt(test_mse)
+    test_r2 = r2_score(y_test, pred_test)
 
-    mae = mean_absolute_error(
+    print("\n--- TRAIN METRICS ---")
+    print(f"MAE:  {train_mae:.4f}")
+    print(f"RMSE: {train_rmse:.4f}")
+    print(f"R²:   {train_r2:.4f}")
 
-        y_test,
-
-        predictions
-    )
-
-
-    print(
-        f"Mean Absolute Error: {mae:.2f}"
-    )
-
+    print("\n--- TEST METRICS (Unseen Temporal Horizon) ---")
+    print(f"MAE:  {test_mae:.4f}")
+    print(f"MSE:  {test_mse:.4f}")
+    print(f"RMSE: {test_rmse:.4f}")
+    print(f"R²:   {test_r2:.4f}")
 
     # -----------------------------------------------------
     # Save Model
     # -----------------------------------------------------
-
     model_data = {
-
         "model": model,
-
-        "features": feature_columns
-
+        "features": feature_columns,
+        "metrics": {
+            "test_mae": float(test_mae),
+            "test_rmse": float(test_rmse),
+            "test_r2": float(test_r2)
+        }
     }
 
+    joblib.dump(model_data, MODEL_PATH)
 
-    joblib.dump(
+    try:
+        model.save_model(str(NATIVE_MODEL_PATH))
+        print(f"\nNative XGBoost JSON model saved to: {NATIVE_MODEL_PATH}")
+    except Exception as e:
+        print(f"Could not export native JSON format: {e}")
 
-        model_data,
-
-        MODEL_PATH
-    )
-
-
-    print(
-        "\n==================================="
-    )
-
-    print(
-        "MODEL SAVED SUCCESSFULLY"
-    )
-
-    print(
-        "==================================="
-    )
-
-    print(
-        f"\nLocation:\n{MODEL_PATH}"
-    )
-
-    print(
-        "\nFeatures stored:"
-    )
-
+    print("\n===================================")
+    print("      MODEL SAVED SUCCESSFULLY")
+    print("===================================")
+    print(f"Location: {MODEL_PATH}")
+    print("\nFeatures stored:")
     for feature in feature_columns:
+        print(f" - {feature}")
 
-        print(
-            f" - {feature}"
-        )
+    return model_data
 
-
-# =========================================================
-# MAIN
-# =========================================================
 
 if __name__ == "__main__":
-
     train_model()

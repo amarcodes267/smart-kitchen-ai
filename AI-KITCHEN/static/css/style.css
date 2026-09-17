@@ -9,26 +9,58 @@
 }
 
 :root {
-    --primary: #16a34a;
-    --primary-dark: #15803d;
-    --secondary: #0f172a;
-    --text: #1e293b;
-    --muted: #64748b;
-    --background: #f8fafc;
-    --white: #ffffff;
-    --border: #e2e8f0;
-    --success: #22c55e;
+    --primary: #2563EB;          /* Royal Blue */
+    --primary-dark: #1D4ED8;     /* Deep Blue */
+    --secondary: #78350F;        /* Rich Brown */
+    --secondary-dark: #5C270A;   /* Deep Brown */
+    --brown: #8B5A2B;            /* Warm Kitchen Brown */
+    --black: #111827;            /* Onyx Black */
+    --ai-accent: #2563EB;        /* AI Blue Accent */
+    --text: #111827;             /* Black for text */
+    --heading: #111827;          /* Black for headings */
+    --muted: #64748B;            /* Slate Muted */
+    --background: #FAF8F5;       /* Warm linen off-white complementing brown & black */
+    --white: #FFFFFF;
+    --border: #E5E7EB;
+    --border-dark: #111827;
+    --success: #16A34A;
+    --accent-light: #EFF6FF;     /* Ice Blue Tint */
+    --soft-orange: #F5ECE5;      /* Soft warm brown tint */
+    --soft-brown: #F5ECE5;       /* Warm brown tint */
+    --soft-blue: #EFF6FF;        /* Soft blue tint */
     --danger: #ef4444;
     --warning: #f59e0b;
+    --secondary: #D97706;        /* Warm Amber-Brown */
+    --secondary-dark: #92400E;   /* Deep Brown */
+    --brown: #B45309;            /* Kitchen Brown Accent */
+    --black: #000000;            /* True Black */
+    --ai-accent: #3B82F6;        /* Electric Blue Accent */
+    --text: #F3F4F6;             /* Crisp Light Text on Black */
+    --heading: #FFFFFF;          /* Pure White Headings */
+    --muted: #9CA3AF;            /* Slate Muted */
+    --background: #000000;       /* Pitch Black Background */
+    --card-bg: #000000;          /* Pitch Black Cards */
+    --white: #000000;            /* All Container Backgrounds Black */
+    --border: #27272A;           /* Dark Border */
+    --border-dark: #3F3F46;      /* Active Dark Border */
+    --success: #22C55E;
+    --accent-light: rgba(37, 99, 235, 0.15); /* Soft Blue Tint on Black */
+    --soft-orange: rgba(217, 119, 6, 0.2);   /* Soft Brown Tint on Black */
+    --soft-brown: rgba(217, 119, 6, 0.2);    /* Soft Brown Tint on Black */
+    --soft-blue: rgba(37, 99, 235, 0.15);    /* Soft Blue Tint on Black */
+    --danger: #EF4444;
+    --warning: #F59E0B;
 }
 
 html {
     scroll-behavior: smooth;
+    background: #000000;
 }
 
 body {
     font-family: Arial, Helvetica, sans-serif;
     background: var(--background);
+    background: #000000;
     color: var(--text);
     line-height: 1.6;
 }
@@ -43,6 +75,9 @@ input,
 select,
 textarea {
     font: inherit;
+    background: #000000;
+    color: #FFFFFF;
+    border: 1px solid var(--border);
 }
 
 
@@ -61,6 +96,7 @@ textarea {
     padding: 0 7%;
 
     background: var(--white);
+    background: #000000;
     border-bottom: 1px solid var(--border);
 
     position: sticky;
@@ -71,7 +107,8 @@ textarea {
 .logo {
     font-size: 1.35rem;
     font-weight: 700;
-    color: var(--secondary);
+    color: var(--black);
+    color: #FFFFFF;
 }
 
 .nav-links {
@@ -110,10 +147,20 @@ textarea {
     background:
         radial-gradient(
             circle at 90% 20%,
-            rgba(34, 197, 94, 0.12),
+            rgba(37, 99, 235, 0.09),
             transparent 35%
+            rgba(37, 99, 235, 0.16),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 10% 80%,
+            rgba(120, 53, 15, 0.06),
+            transparent 35%
+            rgba(217, 119, 6, 0.12),
+            transparent 45%
         ),
         var(--background);
+        #000000;
 }
 
 .hero-content {
@@ -127,20 +174,23 @@ textarea {
 
     border-radius: 50px;
 
-    background: #dcfce7;
-    color: var(--primary-dark);
+    background: var(--soft-brown);
+    color: var(--secondary);
 
     font-size: 0.8rem;
     font-weight: 700;
 
     margin-bottom: 18px;
+    border: 1px solid rgba(120, 53, 15, 0.15);
+    border: 1px solid rgba(217, 119, 6, 0.35);
 }
 
 .hero h1 {
     font-size: clamp(2.7rem, 6vw, 5rem);
     line-height: 1.05;
 
-    color: var(--secondary);
+    color: var(--black);
+    color: #FFFFFF;
 
     margin-bottom: 25px;
 }
@@ -182,23 +232,76 @@ textarea {
 .btn-primary {
     background: var(--primary);
     color: var(--white);
+    color: #FFFFFF;
 }
 
 .btn-primary:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.45);
 }
 
 .btn-secondary {
     background: var(--white);
+    background: #000000;
     color: var(--secondary);
 
-    border: 1px solid var(--border);
+    border: 1px solid var(--secondary);
 }
 
 .btn-secondary:hover {
     border-color: var(--primary);
     color: var(--primary);
+    color: #60A5FA;
+    background: var(--soft-blue);
+}
+
+
+/* =====================================================
+   HERO IMAGE
+===================================================== */
+
+.hero-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-food-img {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(23, 32, 51, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+    border: 1px solid var(--border);
+}
+
+.hero-food-img:hover {
+    transform: scale(1.02);
+}
+
+
+/* =====================================================
+   SMART PREPARATION PREVIEW
+===================================================== */
+
+.smart-prep-section {
+    padding: 10px 7% 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--background);
+    background: #000000;
+}
+
+.smart-prep-container {
+    width: 100%;
+    max-width: 540px;
 }
 
 
@@ -208,13 +311,15 @@ textarea {
 
 .hero-card {
     background: var(--white);
+    background: #000000;
 
     padding: 35px;
 
     border: 1px solid var(--border);
     border-radius: 22px;
 
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 20px 50px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
 }
 
 .card-icon {
@@ -227,7 +332,8 @@ textarea {
 
     border-radius: 15px;
 
-    background: #dcfce7;
+    background: var(--soft-brown);
+    color: var(--secondary);
 
     font-size: 1.8rem;
 
@@ -235,13 +341,15 @@ textarea {
 }
 
 .hero-card h2 {
-    color: var(--secondary);
+    color: var(--black);
+    color: #FFFFFF;
     margin-bottom: 10px;
 }
 
 .hero-card p {
     font-size: 0.95rem;
     margin-bottom: 25px;
+    color: var(--muted);
 }
 
 .prediction-preview {
@@ -253,7 +361,10 @@ textarea {
 .prediction-preview div {
     padding: 18px;
 
-    background: var(--background);
+    background: var(--soft-brown);
+    border: 1px solid rgba(120, 53, 15, 0.1);
+    background: #000000;
+    border: 1px solid var(--border);
 
     border-radius: 12px;
 }
@@ -269,7 +380,8 @@ textarea {
 }
 
 .prediction-preview strong {
-    color: var(--primary-dark);
+    color: var(--primary);
+    color: #60A5FA;
     font-size: 1.05rem;
 }
 
@@ -282,10 +394,12 @@ textarea {
 .how-it-works {
     padding: 90px 7%;
     background: var(--white);
+    background: #000000;
 }
 
 .how-it-works {
     background: var(--background);
+    background: #000000;
 }
 
 .section-heading {
@@ -299,7 +413,8 @@ textarea {
     font-size: 2.4rem;
     line-height: 1.2;
 
-    color: var(--secondary);
+    color: var(--black);
+    color: #FFFFFF;
 
     margin-bottom: 15px;
 }
@@ -327,7 +442,8 @@ textarea {
 .feature-card {
     padding: 28px;
 
-    background: var(--background);
+    background: var(--white);
+    background: #000000;
 
     border: 1px solid var(--border);
     border-radius: 18px;
@@ -338,9 +454,11 @@ textarea {
 .feature-card:hover {
     transform: translateY(-5px);
 
-    border-color: #bbf7d0;
+    border-color: #93C5FD;
+    border-color: var(--primary);
 
-    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.07);
+    box-shadow: 0 15px 30px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
 }
 
 .feature-icon {
@@ -355,7 +473,8 @@ textarea {
 
     border-radius: 13px;
 
-    background: #dcfce7;
+    background: var(--soft-brown);
+    color: var(--secondary);
 
     margin-bottom: 20px;
 }
@@ -363,7 +482,8 @@ textarea {
 .feature-card h3 {
     margin-bottom: 10px;
 
-    color: var(--secondary);
+    color: var(--black);
+    color: #FFFFFF;
 }
 
 .feature-card p {
@@ -403,8 +523,9 @@ textarea {
 
     border-radius: 50%;
 
-    background: var(--primary);
+    background: var(--secondary);
     color: var(--white);
+    color: #FFFFFF;
 
     font-weight: 700;
 }
@@ -412,7 +533,8 @@ textarea {
 .step h3 {
     margin-bottom: 8px;
 
-    color: var(--secondary);
+    color: var(--black);
+    color: #FFFFFF;
 }
 
 .step p {
@@ -431,25 +553,32 @@ textarea {
 
     text-align: center;
 
-    background: var(--secondary);
+    background: var(--black);
+    background: #000000;
 
     border-radius: 25px;
+    border: 1px solid rgba(120, 53, 15, 0.35);
+    border: 1px solid var(--border);
 
     color: var(--white);
+    color: #FFFFFF;
 }
 
 .cta h2 {
     font-size: 2.3rem;
     margin-bottom: 12px;
+    color: var(--white);
+    color: #FFFFFF;
 }
 
 .cta p {
-    color: #cbd5e1;
+    color: #94A3B8;
     margin-bottom: 25px;
 }
 
 .cta .btn-primary {
     background: var(--primary);
+    color: #FFFFFF;
 }
 
 
@@ -463,6 +592,7 @@ footer {
     text-align: center;
 
     background: var(--white);
+    background: #000000;
 
     border-top: 1px solid var(--border);
 

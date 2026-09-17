@@ -3,7 +3,7 @@ services:
     name: ai-kitchen
     runtime: python
     rootDir: AI-KITCHEN
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r ../requirements.txt
     startCommand: gunicorn app:app
     healthCheckPath: /health
     envVars:

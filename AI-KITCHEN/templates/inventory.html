@@ -22,7 +22,7 @@
         }
 
         .page-header h1 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 5px;
         }
 
@@ -44,7 +44,7 @@
         }
 
         .inventory-card h2 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 20px;
             font-size: 1.2rem;
         }
@@ -58,6 +58,7 @@
             margin-bottom: 7px;
             font-weight: 600;
             font-size: 0.9rem;
+            color: #FFFFFF;
         }
 
         .form-group input,
@@ -156,6 +157,7 @@
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/dashboard">Dashboard</a>
+            <a href="/menu">Menu</a>
             <a href="/sales">Sales</a>
             <a href="/waste">Waste</a>
         </div>
@@ -386,10 +388,32 @@
 
         // -----------------------------------------
         // Kitchen ID
+        // Kitchen ID Resolution
         // -----------------------------------------
 
         const kitchenId =
             localStorage.getItem("kitchen_id");
+        async function ensureKitchenId() {
+            let id = localStorage.getItem("kitchen_id");
+            if (id) {
+                try {
+                    const r = await fetch(`/api/kitchen/${id}`, { cache: 'no-store' });
+                    const res = await r.json();
+                    if (res.success && res.kitchen) return id;
+                } catch(e) {}
+                localStorage.removeItem("kitchen_id");
+            }
+            try {
+                const r = await fetch('/api/kitchen/', { cache: 'no-store' });
+                const res = await r.json();
+                if (res.success && res.kitchens && res.kitchens.length > 0) {
+                    id = String(res.kitchens[0].id);
+                    localStorage.setItem('kitchen_id', id);
+                    return id;
+                }
+            } catch(e) {}
+            return null;
+        }
 
 
         // -----------------------------------------
@@ -425,6 +449,7 @@
                     "inventoryTableBody"
                 );
 
+            const kitchenId = await ensureKitchenId();
 
             if (!kitchenId) {
 
@@ -447,7 +472,8 @@
 
                 const response =
                     await fetch(
-                        `/api/inventory/${kitchenId}`
+                        `/api/inventory/${kitchenId}`,
+                        { cache: 'no-store' }
                     );
 
                 const result =
@@ -492,6 +518,7 @@
 
                             <td>
                                 ${item.ingredient_name}
+                                <strong>${item.ingredient_name}</strong>
                             </td>
 
                             <td>
@@ -568,6 +595,8 @@
             async function(event) {
 
                 event.preventDefault();
+
+                const kitchenId = await ensureKitchenId();
 
                 if (!kitchenId) {
                     showMessage(
@@ -803,6 +832,8 @@
         // -----------------------------------------
 
         loadInventory();
+        window.addEventListener('focus', loadInventory);
+        window.addEventListener('pageshow', loadInventory);
 
     </script>
 

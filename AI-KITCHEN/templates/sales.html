@@ -22,7 +22,7 @@
         }
 
         .page-header h1 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 5px;
         }
 
@@ -44,7 +44,7 @@
         }
 
         .sales-card h2 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 20px;
             font-size: 1.2rem;
         }
@@ -58,6 +58,7 @@
             margin-bottom: 7px;
             font-weight: 600;
             font-size: 0.9rem;
+            color: #FFFFFF;
         }
 
         .form-group input,
@@ -373,10 +374,32 @@
 
         // -----------------------------------------
         // Kitchen ID
+        // Kitchen ID Resolution
         // -----------------------------------------
 
         const kitchenId =
             localStorage.getItem("kitchen_id");
+        async function ensureKitchenId() {
+            let id = localStorage.getItem("kitchen_id");
+            if (id) {
+                try {
+                    const r = await fetch(`/api/kitchen/${id}`, { cache: 'no-store' });
+                    const res = await r.json();
+                    if (res.success && res.kitchen) return id;
+                } catch(e) {}
+                localStorage.removeItem("kitchen_id");
+            }
+            try {
+                const r = await fetch('/api/kitchen/', { cache: 'no-store' });
+                const res = await r.json();
+                if (res.success && res.kitchens && res.kitchens.length > 0) {
+                    id = String(res.kitchens[0].id);
+                    localStorage.setItem('kitchen_id', id);
+                    return id;
+                }
+            } catch(e) {}
+            return null;
+        }
 
 
         // -----------------------------------------
@@ -424,6 +447,7 @@
                     "menu_item_id"
                 );
 
+            const kitchenId = await ensureKitchenId();
 
             if (!kitchenId) {
 
@@ -442,7 +466,8 @@
 
                 const response =
                     await fetch(
-                        `/api/menu/${kitchenId}`
+                        `/api/menu/${kitchenId}`,
+                        { cache: 'no-store' }
                     );
 
                 const result =
@@ -483,7 +508,7 @@
                     ${menuItems.map(item => `
 
                         <option value="${item.id}">
-                            ${item.name}
+                            ${item.name} (₹${item.price})
                         </option>
 
                     `).join("")}
@@ -516,6 +541,7 @@
                     "salesTableBody"
                 );
 
+            const kitchenId = await ensureKitchenId();
 
             if (!kitchenId) {
 
@@ -541,7 +567,8 @@
 
                 const response =
                     await fetch(
-                        `/api/sales/${kitchenId}`
+                        `/api/sales/${kitchenId}`,
+                        { cache: 'no-store' }
                     );
 
                 const result =
@@ -588,7 +615,8 @@
 
                 const menuResponse =
                     await fetch(
-                        `/api/menu/${kitchenId}`
+                        `/api/menu/${kitchenId}`,
+                        { cache: 'no-store' }
                     );
 
                 const menuResult =
@@ -688,6 +716,7 @@
 
                 event.preventDefault();
 
+                const kitchenId = await ensureKitchenId();
 
                 if (!kitchenId) {
 
@@ -874,6 +903,14 @@
 
         loadMenu();
         loadSales();
+        async function refreshSalesPage() {
+            await loadMenu();
+            await loadSales();
+        }
+
+        refreshSalesPage();
+        window.addEventListener('focus', refreshSalesPage);
+        window.addEventListener('pageshow', refreshSalesPage);
 
     </script>
 

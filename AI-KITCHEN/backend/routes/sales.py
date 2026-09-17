@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from flask import Blueprint, request, jsonify
 
 from backend.utils.database import db
@@ -211,10 +210,17 @@ def delete_sales(sale_id):
             "message": "Sales record not found."
         }), 404
 
-    db.session.delete(sale)
-    db.session.commit()
+    try:
+        db.session.delete(sale)
+        db.session.commit()
 
-    return jsonify({
-        "success": True,
-        "message": "Sales record deleted successfully."
-    })
+        return jsonify({
+            "success": True,
+            "message": "Sales record deleted successfully."
+        })
+    except Exception as error:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Failed to delete sales record: {str(error)}"
+        }), 500

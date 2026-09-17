@@ -12,6 +12,9 @@
         href="{{ url_for('static', filename='css/style.css') }}"
     >
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+
     <style>
         /* =========================
            Dashboard
@@ -76,7 +79,7 @@
 
         .stat-card strong {
             font-size: 1.8rem;
-            color: var(--secondary);
+            color: #FFFFFF;
         }
 
         .stat-card small {
@@ -114,12 +117,12 @@
         }
 
         .card-header h2 {
-            color: var(--secondary);
+            color: #FFFFFF;
             font-size: 1.2rem;
         }
 
         .card-header a {
-            color: var(--primary-dark);
+            color: var(--primary);
             font-size: 0.85rem;
             font-weight: 600;
         }
@@ -166,27 +169,6 @@
         .empty-state .empty-icon {
             font-size: 2.2rem;
             margin-bottom: 10px;
-        }
-
-        /* =========================
-           Recommendation
-        ========================== */
-
-        .recommendation-box {
-            padding: 22px;
-            border-radius: 14px;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-        }
-
-        .recommendation-box h3 {
-            color: var(--primary-dark);
-            margin-bottom: 8px;
-        }
-
-        .recommendation-box p {
-            color: var(--muted);
-            font-size: 0.9rem;
         }
 
         /* =========================
@@ -252,10 +234,15 @@
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/kitchen-setup">Setup</a>
+            <a href="/menu">Menu</a>
+            <a href="/recipes">Recipes</a>
             <a href="/inventory">Inventory</a>
             <a href="/sales">Sales</a>
             <a href="/waste">Waste</a>
+            <a href="/predictions">Predictions</a>
+            <a href="/analytics">Analytics</a>
         </div>
+
 
     </nav>
 
@@ -289,11 +276,19 @@
             <div class="dashboard-actions">
 
                 <a
+                    href="/recipes"
+                    class="btn btn-secondary"
+                >
+                    📖 Recipes
+                </a>
+
+                <a
                     href="/inventory"
                     class="btn btn-secondary"
                 >
                     Inventory
                 </a>
+
 
                 <a
                     href="/sales"
@@ -307,6 +302,13 @@
                     class="btn btn-primary"
                 >
                     Add Waste
+                </a>
+
+                <a
+                    href="/menu"
+                    class="btn btn-secondary"
+                >
+                    Menu
                 </a>
 
             </div>
@@ -407,6 +409,63 @@
 
 
         <!-- =========================
+             Charts
+        ========================== -->
+
+        <section class="dashboard-grid" style="margin-bottom: 25px;">
+
+            <div class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2>
+                        Demand Trends
+                    </h2>
+                </div>
+                <div style="height: 300px;">
+                <div style="height: 300px; position: relative;">
+                    <canvas id="demandChart"></canvas>
+                    <div id="demandChartEmpty" class="empty-state" style="display: none; padding: 50px 0;">
+                        <div class="empty-icon">📈</div>
+                        <p>No sales or menu data yet to project demand.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2>
+                        Sales Overview
+                    </h2>
+                </div>
+                <div style="height: 250px;">
+                <div style="height: 250px; position: relative;">
+                    <canvas id="salesChart"></canvas>
+                    <div id="salesChartEmpty" class="empty-state" style="display: none; padding: 40px 0;">
+                        <div class="empty-icon">📊</div>
+                        <p>No sales recorded yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2>
+                        Waste Breakdown
+                    </h2>
+                </div>
+                <div style="height: 250px;">
+                <div style="height: 250px; position: relative;">
+                    <canvas id="wasteChart"></canvas>
+                    <div id="wasteChartEmpty" class="empty-state" style="display: none; padding: 40px 0;">
+                        <div class="empty-icon">🗑️</div>
+                        <p>No waste recorded yet.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- =========================
              Main Dashboard
         ========================== -->
 
@@ -434,39 +493,6 @@
                     class="loading"
                 >
                     Loading waste data...
-                </div>
-
-            </div>
-
-
-            <!-- AI Recommendation -->
-
-            <div class="dashboard-card">
-
-                <div class="card-header">
-
-                    <h2>
-                        🤖 AI Recommendation
-                    </h2>
-
-                    <a href="/recommendations">
-                        View
-                    </a>
-
-                </div>
-
-                <div class="recommendation-box">
-
-                    <h3>
-                        Smart Preparation
-                    </h3>
-
-                    <p id="recommendationText">
-                        Add sales history and menu
-                        items to generate AI-powered
-                        preparation recommendations.
-                    </p>
-
                 </div>
 
             </div>
@@ -524,6 +550,32 @@
             </div>
 
 
+            <!-- Tomorrow's Demand & Prep -->
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🔮 Tomorrow's Demand & Prep
+                    </h2>
+
+                    <a href="/predictions">
+                        Predict
+                    </a>
+
+                </div>
+
+                <div
+                    id="tomorrowPrepList"
+                    class="loading"
+                >
+                    Loading predictions...
+                </div>
+
+            </div>
+
+
             <!-- Quick Actions -->
 
             <div class="dashboard-card full-width">
@@ -543,6 +595,13 @@
                         class="btn btn-secondary"
                     >
                         ⚙️ Kitchen Setup
+                    </a>
+
+                    <a
+                        href="/menu"
+                        class="btn btn-secondary"
+                    >
+                        🍽️ Menu Items
                     </a>
 
                     <a
@@ -574,10 +633,17 @@
                     </a>
 
                     <a
-                        href="/recommendations"
-                        class="btn btn-primary"
+                        href="/analytics"
+                        class="btn btn-secondary"
                     >
-                        🤖 AI Recommendations
+                        📊 Analytics
+                    </a>
+
+                    <a
+                        href="/alerts"
+                        class="btn btn-secondary"
+                    >
+                        🔔 Alerts
                     </a>
 
                 </div>
@@ -596,41 +662,47 @@
     <script>
 
         // -----------------------------------------
+        // Chart instances tracking
+        // -----------------------------------------
+        let demandChartInstance = null;
+        let salesChartInstance = null;
+        let wasteChartInstance = null;
+        let isRefreshing = false;
+
+        // -----------------------------------------
         // Kitchen selection and bootstrap
         // -----------------------------------------
 
         async function ensureKitchen() {
             let kitchenId = localStorage.getItem("kitchen_id");
 
-            // If already stored, return it
+            // If stored, verify it still exists in the database
             if (kitchenId) {
-                return kitchenId;
+                try {
+                    const checkResp = await fetch(`/api/kitchen/${kitchenId}`, { cache: 'no-store' });
+                    const checkResult = await checkResp.json();
+                    if (checkResult.success && checkResult.kitchen) {
+                        return kitchenId;
+                    }
+                } catch (e) {}
+                localStorage.removeItem("kitchen_id");
+                kitchenId = null;
             }
 
             try {
                 // Fetch kitchens list
-                const r = await fetch('/api/kitchen/');
+                const r = await fetch('/api/kitchen/', { cache: 'no-store' });
                 const res = await r.json();
 
                 if (res.success && res.kitchens && res.kitchens.length > 0) {
-                    kitchenId = res.kitchens[0].id;
+                    kitchenId = String(res.kitchens[0].id);
                     localStorage.setItem('kitchen_id', kitchenId);
                     return kitchenId;
                 }
 
-                // No kitchen exists — create a demo kitchen
-                const createResp = await fetch('/api/kitchen/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: 'Demo Kitchen', cuisine_type: 'General', seats: 20, meals_per_day: 100 })
-                });
-
-                const createResult = await createResp.json();
-                if (createResult.success && createResult.kitchen && createResult.kitchen.id) {
-                    kitchenId = createResult.kitchen.id;
-                    localStorage.setItem('kitchen_id', kitchenId);
-                    return kitchenId;
-                }
+                // No kitchen exists — redirect owner to setup page to create their own kitchen
+                window.location.href = '/kitchen-setup';
+                return null;
 
             } catch (err) {
                 console.error('Unable to ensure kitchen:', err);
@@ -647,16 +719,18 @@
         async function loadKitchen(kitchenId) {
 
             if (!kitchenId) {
-                document.getElementById('kitchenName').textContent = 'No Kitchen Selected';
+                const kEl = document.getElementById('kitchenName');
+                if (kEl) kEl.textContent = 'No Kitchen Selected';
                 return;
             }
 
             try {
-                const response = await fetch(`/api/kitchen/${kitchenId}`);
+                const response = await fetch(`/api/kitchen/${kitchenId}`, { cache: 'no-store' });
                 const result = await response.json();
 
-                if (result.success) {
-                    document.getElementById('kitchenName').textContent = result.kitchen.name;
+                if (result.success && result.kitchen) {
+                    const kEl = document.getElementById('kitchenName');
+                    if (kEl) kEl.textContent = result.kitchen.name;
                 }
 
             } catch (error) {
@@ -675,16 +749,20 @@
             if (!kitchenId) return;
 
             try {
-                const response = await fetch(`/api/inventory/${kitchenId}`);
+                const response = await fetch(`/api/inventory/${kitchenId}`, { cache: 'no-store' });
                 const result = await response.json();
 
                 if (!result.success) return;
 
-                const inventory = result.inventory;
+                const inventory = result.inventory || [];
 
-                document.getElementById('inventoryCount').textContent = inventory.length;
+                const countEl = document.getElementById('inventoryCount');
+                if (countEl) countEl.textContent = inventory.length;
 
                 const container = document.getElementById('inventoryList');
+                if (!container) return;
+
+                container.classList.remove('loading');
 
                 if (inventory.length === 0) {
                     container.innerHTML = `
@@ -699,14 +777,15 @@
                     <div class="table-wrapper">
                         <table class="dashboard-table">
                             <thead>
-                                <tr><th>Ingredient</th><th>Quantity</th><th>Unit</th></tr>
+                                <tr><th>Ingredient</th><th>Quantity</th><th>Unit</th><th>Min Stock</th></tr>
                             </thead>
                             <tbody>
-                                ${inventory.slice(0,5).map(item => `
+                                ${inventory.slice(0, 5).map(item => `
                                     <tr>
-                                        <td>${item.ingredient_name}</td>
+                                        <td><strong>${item.ingredient_name}</strong></td>
                                         <td>${item.quantity}</td>
                                         <td>${item.unit}</td>
+                                        <td>${item.minimum_stock != null ? item.minimum_stock : 0}</td>
                                     </tr>`).join('')}
                             </tbody>
                         </table>
@@ -727,23 +806,32 @@
             if (!kitchenId) return;
 
             try {
-                const response = await fetch(`/api/waste/${kitchenId}/summary`);
+                const response = await fetch(`/api/waste/${kitchenId}/summary`, { cache: 'no-store' });
                 const result = await response.json();
 
                 if (!result.success) return;
 
                 const summary = result.summary;
 
-                document.getElementById('totalWaste').textContent = summary.total_waste;
-                document.getElementById('totalSales').textContent = summary.total_sales;
-                document.getElementById('wasteRate').textContent = `${summary.waste_percentage}%`;
+                const wEl = document.getElementById('totalWaste');
+                if (wEl) wEl.textContent = summary.total_waste;
 
-                document.getElementById('wasteSummary').innerHTML = `
-                    <div>
-                        <p>Total Waste: <strong>${summary.total_waste}</strong></p>
-                        <p>Waste Cost: <strong>₹${summary.total_waste_cost}</strong></p>
-                        <p>Waste Rate: <strong>${summary.waste_percentage}%</strong></p>
-                    </div>`;
+                const sEl = document.getElementById('totalSales');
+                if (sEl) sEl.textContent = summary.total_sales;
+
+                const rEl = document.getElementById('wasteRate');
+                if (rEl) rEl.textContent = `${summary.waste_percentage}%`;
+
+                const box = document.getElementById('wasteSummary');
+                if (box) {
+                    box.classList.remove('loading');
+                    box.innerHTML = `
+                        <div style="font-size: 0.95rem; line-height: 1.8;">
+                            <p>Total Waste: <strong style="color: #dc2626;">${summary.total_waste}</strong></p>
+                            <p>Waste Cost: <strong>₹${summary.total_waste_cost}</strong></p>
+                            <p>Waste Rate: <strong>${summary.waste_percentage}%</strong></p>
+                        </div>`;
+                }
 
             } catch (error) {
                 console.error('Waste summary error:', error);
@@ -759,13 +847,16 @@
             if (!kitchenId) return;
 
             try {
-                const response = await fetch(`/api/waste/${kitchenId}/high-waste`);
+                const response = await fetch(`/api/waste/${kitchenId}/high-waste`, { cache: 'no-store' });
                 const result = await response.json();
 
                 if (!result.success) return;
 
-                const items = result.high_waste_items;
+                const items = result.high_waste_items || [];
                 const container = document.getElementById('highWasteList');
+                if (!container) return;
+
+                container.classList.remove('loading');
 
                 if (items.length === 0) {
                     container.innerHTML = `
@@ -785,7 +876,7 @@
                             <tbody>
                                 ${items.map(item => `
                                     <tr>
-                                        <td>${item.menu_item}</td>
+                                        <td><strong>${item.menu_item}</strong></td>
                                         <td>${item.total_waste}</td>
                                         <td>₹${item.total_cost}</td>
                                     </tr>`).join('')}
@@ -800,16 +891,255 @@
 
 
         // -----------------------------------------
-        // Initialize Dashboard
+        // Load Tomorrow's Demand & Prep Recommendations
         // -----------------------------------------
 
-        (async function initDashboard(){
-            const id = await ensureKitchen();
-            await loadKitchen(id);
-            await loadInventory(id);
-            await loadWasteSummary(id);
-            await loadHighWasteItems(id);
-        })();
+        async function loadTomorrowPrep(kitchenId) {
+            if (!kitchenId) return;
+
+            try {
+                const response = await fetch(`/api/demand/kitchen/${kitchenId}?days=14`, { cache: 'no-store' });
+                const result = await response.json();
+
+                const container = document.getElementById('tomorrowPrepList');
+                if (!container) return;
+
+                container.classList.remove('loading');
+
+                const items = (result.success && result.demand && result.demand.items) ? result.demand.items : [];
+
+                if (items.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🔮</div>
+                            <p>No predictions yet. Record sales to unlock AI prep suggestions.</p>
+                            <a href="/predictions" class="btn btn-primary" style="margin-top: 10px; padding: 6px 14px; font-size: 0.8rem;">Generate</a>
+                        </div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="table-wrapper">
+                        <table class="dashboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Food Item</th>
+                                    <th>Forecast</th>
+                                    <th>Prep Rec.</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${items.slice(0, 5).map(item => {
+                                    const predicted = Math.round(item.predicted_demand_tomorrow || item.avg_daily_demand || 0);
+                                    const recommended = Math.max(1, Math.round(predicted * 0.95));
+                                    const trendSymbol = item.trend_symbol || (item.trend === 'increasing' ? '↗️' : item.trend === 'decreasing' ? '↘️' : '➡️');
+                                    return `
+                                        <tr>
+                                            <td><strong>${item.name}</strong></td>
+                                            <td><span style="color: #60A5FA; font-weight: 700;">${predicted}</span></td>
+                                            <td><span style="color: #34D399; font-weight: 700;">${recommended}</span></td>
+                                            <td>${trendSymbol} <small style="color: var(--muted);">${item.trend || 'stable'}</small></td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>`;
+
+            } catch (error) {
+                console.error('Tomorrow prep error:', error);
+            }
+        }
+
+
+        // -----------------------------------------
+        // Load Charts
+        // -----------------------------------------
+
+        async function loadCharts(kitchenId) {
+            if (!kitchenId) return;
+
+            try {
+                // Demand Chart
+                const demandRes = await fetch(`/api/demand/kitchen/${kitchenId}?days=14`, { cache: 'no-store' });
+                const demandData = await demandRes.json();
+                const demandItems = (demandData.success && demandData.demand && demandData.demand.items) ? demandData.demand.items : [];
+                const demandCanvas = document.getElementById('demandChart');
+                const demandEmpty = document.getElementById('demandChartEmpty');
+
+                if (demandItems.length > 0 && window.Chart && demandCanvas) {
+                    demandCanvas.style.display = 'block';
+                    if (demandEmpty) demandEmpty.style.display = 'none';
+
+                    if (demandChartInstance) {
+                        demandChartInstance.destroy();
+                        demandChartInstance = null;
+                    }
+
+                    const items = demandItems.slice(0, 5);
+                    const labels = items.map(i => i.name);
+                    const data = items.map(i => i.predicted_demand_tomorrow);
+                    demandChartInstance = new Chart(demandCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Predicted Demand',
+                                data,
+                                backgroundColor: '#2563EB',
+                            }],
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+                    });
+                } else {
+                    if (demandChartInstance) {
+                        demandChartInstance.destroy();
+                        demandChartInstance = null;
+                    }
+                    if (demandCanvas) demandCanvas.style.display = 'none';
+                    if (demandEmpty) demandEmpty.style.display = 'block';
+                }
+
+                // Sales Chart
+                const analyticsRes = await fetch(`/api/analytics/sales/kitchen/${kitchenId}?days=14`, { cache: 'no-store' });
+                const analyticsData = await analyticsRes.json();
+                const daily = (analyticsData.success && analyticsData.analytics && analyticsData.analytics.daily_breakdown) ? analyticsData.analytics.daily_breakdown : [];
+                const salesCanvas = document.getElementById('salesChart');
+                const salesEmpty = document.getElementById('salesChartEmpty');
+
+                if (daily.length > 0 && window.Chart && salesCanvas) {
+                    salesCanvas.style.display = 'block';
+                    if (salesEmpty) salesEmpty.style.display = 'none';
+
+                    if (salesChartInstance) {
+                        salesChartInstance.destroy();
+                        salesChartInstance = null;
+                    }
+
+                    const labels = daily.map(d => d.date);
+                    const data = daily.map(d => d.orders);
+                    salesChartInstance = new Chart(salesCanvas, {
+                        type: 'line',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: 'Daily Orders',
+                                data,
+                                borderColor: '#78350F',
+                                fill: true,
+                                backgroundColor: 'rgba(120, 53, 15, 0.08)',
+                            }],
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+                    });
+                } else {
+                    if (salesChartInstance) {
+                        salesChartInstance.destroy();
+                        salesChartInstance = null;
+                    }
+                    if (salesCanvas) salesCanvas.style.display = 'none';
+                    if (salesEmpty) salesEmpty.style.display = 'block';
+                }
+
+                // Waste Breakdown Chart
+                const wasteRes = await fetch(`/api/waste/${kitchenId}/by-item`, { cache: 'no-store' });
+                const wasteData = await wasteRes.json();
+                const wasteItems = (wasteData.success && wasteData.waste_by_item) ? wasteData.waste_by_item : [];
+                const wasteCanvas = document.getElementById('wasteChart');
+                const wasteEmpty = document.getElementById('wasteChartEmpty');
+
+                if (wasteItems.length > 0 && window.Chart && wasteCanvas) {
+                    wasteCanvas.style.display = 'block';
+                    if (wasteEmpty) wasteEmpty.style.display = 'none';
+
+                    if (wasteChartInstance) {
+                        wasteChartInstance.destroy();
+                        wasteChartInstance = null;
+                    }
+
+                    const items = wasteItems.slice(0, 5);
+                    const labels = items.map(i => i.menu_item);
+                    const data = items.map(i => i.total_waste);
+                    wasteChartInstance = new Chart(wasteCanvas, {
+                        type: 'doughnut',
+                        data: {
+                            labels,
+                            datasets: [{
+                                data,
+                                backgroundColor: ['#2563EB','#78350F','#FFFFFF','#3B82F6','#92400E'],
+                            }],
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+                    });
+                } else {
+                    if (wasteChartInstance) {
+                        wasteChartInstance.destroy();
+                        wasteChartInstance = null;
+                    }
+                    if (wasteCanvas) wasteCanvas.style.display = 'none';
+                    if (wasteEmpty) wasteEmpty.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Chart loading error:', error);
+            }
+        }
+
+
+        // -----------------------------------------
+        // Refresh All Dashboard Data
+        // -----------------------------------------
+
+        async function refreshAllDashboard() {
+            if (isRefreshing) return;
+            isRefreshing = true;
+
+            try {
+                const id = await ensureKitchen();
+                if (id) {
+                    await Promise.allSettled([
+                        loadKitchen(id),
+                        loadInventory(id),
+                        loadWasteSummary(id),
+                        loadHighWasteItems(id),
+                        loadTomorrowPrep(id),
+                        loadCharts(id)
+                    ]);
+                }
+            } catch (err) {
+                console.error('Dashboard refresh failed:', err);
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
+
+        // -----------------------------------------
+        // Initialize and Event Listeners
+        // -----------------------------------------
+
+        // 1. Initial execution
+        refreshAllDashboard();
+
+        // 2. Auto-refresh whenever the browser tab/window gains focus
+        window.addEventListener('focus', () => {
+            refreshAllDashboard();
+        });
+
+        // 3. Auto-refresh when restored from BFcache (back/forward navigation)
+        window.addEventListener('pageshow', () => {
+            refreshAllDashboard();
+        });
+
+        // 4. Auto-refresh when tab visibility changes to visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                refreshAllDashboard();
+            }
+        });
+
+        // 5. Periodic background refresh every 15 seconds
+        setInterval(refreshAllDashboard, 15000);
 
     </script>
 

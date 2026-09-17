@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from flask import Blueprint, request, jsonify
 
 from backend.utils.database import db
@@ -248,10 +247,17 @@ def delete_inventory(item_id):
             "message": "Inventory item not found."
         }), 404
 
-    db.session.delete(inventory)
-    db.session.commit()
+    try:
+        db.session.delete(inventory)
+        db.session.commit()
 
-    return jsonify({
-        "success": True,
-        "message": "Inventory item deleted successfully."
-    })
+        return jsonify({
+            "success": True,
+            "message": "Inventory item deleted successfully."
+        })
+    except Exception as error:
+        db.session.rollback()
+        return jsonify({
+            "success": False,
+            "message": f"Failed to delete inventory item: {str(error)}"
+        }), 500

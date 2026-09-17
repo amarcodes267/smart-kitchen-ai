@@ -20,7 +20,7 @@ def init_db(app):
 
 
 def ensure_schema_compatibility():
-    """Apply the additive schema change required by the existing menu UI."""
+    """Apply additive schema changes required by menu items safely."""
 
     inspector = inspect(db.engine)
 
@@ -32,8 +32,27 @@ def ensure_schema_compatibility():
         for column in inspector.get_columns("menu_items")
     }
 
+    missing_columns = []
+
     if "price" not in column_names:
+        missing_columns.append(
+            "ALTER TABLE menu_items ADD COLUMN price FLOAT"
+        )
+
+    if "cost_per_serving" not in column_names:
+        missing_columns.append(
+            "ALTER TABLE menu_items ADD COLUMN cost_per_serving FLOAT"
+        )
+
+    if "image_url" not in column_names:
+        missing_columns.append(
+            "ALTER TABLE menu_items ADD COLUMN image_url VARCHAR(500)"
+        )
+
+    if missing_columns:
         with db.engine.begin() as connection:
-            connection.execute(
-                text("ALTER TABLE menu_items ADD COLUMN price FLOAT")
-            )
+            for statement in missing_columns:
+                try:
+                    connection.execute(text(statement))
+                except Exception:
+                    pass

@@ -29,6 +29,11 @@ class MenuItem(db.Model):
         nullable=True
     )
 
+    image_url = db.Column(
+        db.String(500),
+        nullable=True
+    )
+
     created_at = db.Column(
         db.DateTime,
         server_default=db.func.now()
@@ -43,6 +48,7 @@ class MenuItem(db.Model):
             "price": self.price,
             "serving_unit": self.serving_unit,
             "cost_per_serving": self.cost_per_serving,
+            "image_url": self.image_url,
             "created_at": (
                 self.created_at.isoformat()
                 if self.created_at else None

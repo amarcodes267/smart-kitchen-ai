@@ -22,7 +22,7 @@
         }
 
         .page-header h1 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 5px;
         }
 
@@ -44,7 +44,7 @@
         }
 
         .menu-card h2 {
-            color: var(--secondary);
+            color: #FFFFFF;
             margin-bottom: 20px;
             font-size: 1.2rem;
         }
@@ -58,6 +58,7 @@
             margin-bottom: 7px;
             font-weight: 600;
             font-size: 0.9rem;
+            color: #FFFFFF;
         }
 
         .form-group input {
@@ -154,10 +155,13 @@
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/dashboard">Dashboard</a>
+            <a href="/menu">Menu</a>
+            <a href="/recipes">Recipes</a>
             <a href="/inventory">Inventory</a>
             <a href="/sales">Sales</a>
             <a href="/waste">Waste</a>
         </div>
+
 
     </nav>
 
@@ -256,6 +260,21 @@
                     </div>
 
 
+                    <div class="form-group">
+
+                        <label for="menu_image">
+                            Food Image (Optional)
+                        </label>
+
+                        <input
+                            type="file"
+                            id="menu_image"
+                            accept="image/*"
+                        >
+
+                    </div>
+
+
                     <button
                         type="submit"
                         class="btn btn-primary"
@@ -288,6 +307,10 @@
                             <tr>
 
                                 <th>
+                                    Image
+                                </th>
+
+                                <th>
                                     Food Item
                                 </th>
 
@@ -312,7 +335,7 @@
                             <tr>
 
                                 <td
-                                    colspan="4"
+                                    colspan="5"
                                     class="empty-state"
                                 >
                                     Loading menu...
@@ -337,10 +360,32 @@
 
         // -----------------------------------------
         // Kitchen ID
+        // Kitchen ID Resolution
         // -----------------------------------------
 
         const kitchenId =
             localStorage.getItem("kitchen_id");
+        async function ensureKitchenId() {
+            let id = localStorage.getItem("kitchen_id");
+            if (id) {
+                try {
+                    const r = await fetch(`/api/kitchen/${id}`, { cache: 'no-store' });
+                    const res = await r.json();
+                    if (res.success && res.kitchen) return id;
+                } catch(e) {}
+                localStorage.removeItem("kitchen_id");
+            }
+            try {
+                const r = await fetch('/api/kitchen/', { cache: 'no-store' });
+                const res = await r.json();
+                if (res.success && res.kitchens && res.kitchens.length > 0) {
+                    id = String(res.kitchens[0].id);
+                    localStorage.setItem('kitchen_id', id);
+                    return id;
+                }
+            } catch(e) {}
+            return null;
+        }
 
 
         // -----------------------------------------
@@ -376,6 +421,7 @@
                     "menuTableBody"
                 );
 
+            const kitchenId = await ensureKitchenId();
 
             if (!kitchenId) {
 
@@ -383,7 +429,7 @@
                     <tr>
 
                         <td
-                            colspan="4"
+                            colspan="5"
                             class="empty-state"
                         >
                             Please create a kitchen first.
@@ -401,7 +447,8 @@
 
                 const response =
                     await fetch(
-                        `/api/menu/${kitchenId}`
+                        `/api/menu/${kitchenId}`,
+                        { cache: 'no-store' }
                     );
 
                 const result =
@@ -427,7 +474,7 @@
                         <tr>
 
                             <td
-                                colspan="4"
+                                colspan="5"
                                 class="empty-state"
                             >
                                 No food items added yet.
@@ -447,6 +494,14 @@
                         <tr>
 
                             <td>
+                                ${
+                                    item.image_url
+                                    ? `<img src="${item.image_url}" style="height:60px;width:60px;object-fit:cover;border-radius:8px;">`
+                                    : `<span style="color:var(--muted);font-size:0.8rem;">No image</span>`
+                                }
+                            </td>
+
+                            <td>
                                 ${item.name}
                             </td>
 
@@ -460,6 +515,14 @@
 
                             <td>
 
+                                <a
+                                    href="/recipes?dish=${encodeURIComponent(item.name)}"
+                                    style="background:rgba(37,99,235,0.2); color:#60a5fa; border:1px solid #2563eb; padding:6px 10px; border-radius:6px; font-size:0.8rem; font-weight:600; margin-right:6px; display:inline-block;"
+                                    title="View or Generate Recipe"
+                                >
+                                    📖 Recipe
+                                </a>
+
                                 <button
                                     class="delete-btn"
                                     onclick="deleteMenuItem(
@@ -470,6 +533,7 @@
                                 </button>
 
                             </td>
+
 
                         </tr>
 
@@ -482,7 +546,7 @@
                     <tr>
 
                         <td
-                            colspan="4"
+                            colspan="5"
                             class="empty-state"
                         >
                             Unable to load menu.
@@ -510,6 +574,7 @@
 
                 event.preventDefault();
 
+                const kitchenId = await ensureKitchenId();
 
                 if (!kitchenId) {
 
@@ -586,6 +651,37 @@
                         throw new Error(
                             result.message ||
                             "Unable to add menu item."
+                        );
+
+                    }
+
+
+                    const menuItemId =
+                        result.menu_item.id;
+
+                    const imageInput =
+                        document.getElementById(
+                            "menu_image"
+                        );
+
+
+                    if (imageInput.files &&
+                        imageInput.files[0]) {
+
+                        const formData =
+                            new FormData();
+
+                        formData.append(
+                            "image",
+                            imageInput.files[0]
+                        );
+
+                        await fetch(
+                            `/api/menu/${menuItemId}/image`,
+                            {
+                                method: "POST",
+                                body: formData
+                            }
                         );
 
                     }
@@ -688,6 +784,8 @@
         // -----------------------------------------
 
         loadMenu();
+        window.addEventListener('focus', loadMenu);
+        window.addEventListener('pageshow', loadMenu);
 
     </script>
 

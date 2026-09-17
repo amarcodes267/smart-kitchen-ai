@@ -1,5 +1,4 @@
 import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,16 +19,24 @@ class Config:
         "development-secret-key"
     )
 
-    SQLALCHEMY_DATABASE_URI = _read_env(
+    _db_url = _read_env(
         "DATABASE_URL",
         "sqlite:///smart_kitchen.db"
     )
+    if _db_url and _db_url.startswith("postgres://"):
+        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+
+    SQLALCHEMY_DATABASE_URI = _db_url
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     GEMINI_API_KEY = _read_env(
         "GEMINI_API_KEY",
         ""
+    )
+
+    MAX_CONTENT_LENGTH = int(
+        _read_env("MAX_CONTENT_LENGTH", str(16 * 1024 * 1024))
     )
 
     DEBUG = _read_env(

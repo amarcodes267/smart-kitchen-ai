@@ -1,0 +1,29 @@
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Tooling and caches
+.codeartsdoer/
+.codegraph/
+.kilo/
+.qodo/
+
+# Virtual environments
+venv/
+.venv/
+env/

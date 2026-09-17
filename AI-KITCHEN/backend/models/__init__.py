@@ -4,6 +4,8 @@ from backend.models.inventory import Inventory
 from backend.models.sales import Sales
 from backend.models.waste import Waste
 from backend.models.prediction import Prediction
+from backend.models.alert import Alert
+from backend.models.recipe import Recipe, RecipeIngredient
 
 
 __all__ = [
@@ -13,4 +15,7 @@ __all__ = [
     "Sales",
     "Waste",
     "Prediction",
+    "Alert",
+    "Recipe",
+    "RecipeIngredient",
 ]

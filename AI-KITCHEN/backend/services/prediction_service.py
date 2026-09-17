@@ -56,7 +56,7 @@ def prepare_features(sales_data):
 
     if not sales_data:
         raise ValueError(
-            "Not enough sales data available for prediction."
+            "At least 1 sales record is required for prediction."
         )
 
     rows = []
@@ -78,23 +78,14 @@ def prepare_features(sales_data):
     df["month"] = df["date"].dt.month
 
     # Previous sales
-    df["previous_sales"] = df["quantity_sold"].shift(1)
+    df["previous_sales"] = df["quantity_sold"].shift(1).fillna(df["quantity_sold"].iloc[0])
 
-    # Rolling average
+    # Rolling average with min_periods=1
     df["rolling_7_day_avg"] = (
         df["quantity_sold"]
-        .rolling(window=7)
+        .rolling(window=7, min_periods=1)
         .mean()
     )
-
-    # Remove rows where rolling features aren't available
-    df = df.dropna()
-
-    if df.empty:
-        raise ValueError(
-            "At least 7 days of historical sales data "
-            "are required for prediction."
-        )
 
     return df
 
@@ -112,9 +103,9 @@ def predict_demand(kitchen_id, menu_item_id):
         Sales.sale_date.asc()
     ).all()
 
-    if len(sales_data) < 7:
+    if len(sales_data) < 1:
         raise ValueError(
-            "At least 7 days of sales data are required "
+            "At least 1 sales record is required "
             "to generate a prediction."
         )
 
