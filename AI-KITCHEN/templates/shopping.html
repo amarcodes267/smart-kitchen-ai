@@ -12,6 +12,40 @@
         href="{{ url_for('static', filename='css/style.css') }}"
     >
     <script src="{{ url_for('static', filename='js/kitchen.js') }}"></script>
+    <style>
+        .shopping-summary-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+            padding: 14px 18px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            flex-wrap: wrap;
+        }
+        .summary-chip {
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .summary-chip-buy {
+            background: var(--danger-bg);
+            color: #fca5a5;
+            border: 1px solid var(--danger-border);
+        }
+        .summary-chip-reduce {
+            background: var(--warning-bg);
+            color: #fde047;
+            border: 1px solid var(--warning-border);
+        }
+        .summary-chip-ok {
+            background: var(--success-bg);
+            color: #86efac;
+            border: 1px solid var(--success-border);
+        }
+    </style>
 </head>
 
 <body>
@@ -19,13 +53,23 @@
     <nav class="navbar">
 
         <div class="logo">
-            🍽️ AI Kitchen
+            🍽️ AI Kitchen <span class="logo-tag">AI OS</span>
         </div>
 
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/dashboard">Dashboard</a>
+            <a href="/kitchen-setup">Setup</a>
+            <a href="/menu">Menu</a>
+            <a href="/recipes">Recipes</a>
             <a href="/inventory">Inventory</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+            <a href="/predictions">Predictions</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/health-score">Health</a>
+            <a href="/shopping" class="active">Shopping</a>
         </div>
 
     </nav>
@@ -60,7 +104,6 @@
 
     <script>
 
-        const kitchenId = localStorage.getItem("kitchen_id");
         let kitchenId = localStorage.getItem("kitchen_id");
 
         async function loadShoppingList() {
@@ -86,11 +129,11 @@
                 }
 
                 container.innerHTML = `
-                    <div style="margin-bottom: 20px;">
-                        <strong>Summary:</strong>
-                        ${list.summary.to_buy} to buy ·
-                        ${list.summary.reduce_usage} reduce usage ·
-                        ${list.summary.no_purchase} no purchase needed
+                    <div class="shopping-summary-bar">
+                        <strong style="color: var(--heading); font-size: 0.9rem;">Procurement Plan:</strong>
+                        <span class="summary-chip summary-chip-buy">${list.summary.to_buy} to buy</span>
+                        <span class="summary-chip summary-chip-reduce">${list.summary.reduce_usage} reduce usage</span>
+                        <span class="summary-chip summary-chip-ok">${list.summary.no_purchase} no purchase needed</span>
                     </div>
                     <div class="table-wrapper">
                         <table class="dashboard-table">
@@ -104,22 +147,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                ${list.items.map(i => `
+                                ${list.items.map(i => {
+                                    const prioBg = i.priority === 'high' ? 'var(--danger-bg)' : i.priority === 'medium' ? 'var(--warning-bg)' : i.priority === 'low' ? 'var(--info-bg)' : 'rgba(255,255,255,0.05)';
+                                    const prioColor = i.priority === 'high' ? '#fca5a5' : i.priority === 'medium' ? '#fde047' : i.priority === 'low' ? '#7dd3fc' : '#94a3b8';
+                                    const prioBorder = i.priority === 'high' ? 'var(--danger-border)' : i.priority === 'medium' ? 'var(--warning-border)' : i.priority === 'low' ? 'var(--info-border)' : 'var(--border)';
+                                    return `
                                     <tr>
-                                        <td>${i.ingredient}</td>
+                                        <td style="font-weight: 600; color: var(--text-primary);">${i.ingredient}</td>
                                         <td>${i.current} ${i.unit}</td>
                                         <td>${i.required} ${i.unit}</td>
                                         <td>${i.action}</td>
                                         <td>
                                             <span style="
-                                                font-size: 0.75rem;
+                                                font-size: 0.72rem;
                                                 font-weight: 700;
                                                 text-transform: uppercase;
-                                                color: ${i.priority === 'high' ? '#ef4444' : i.priority === 'medium' ? '#f59e0b' : i.priority === 'low' ? '#3b82f6' : '#64748b'};
+                                                letter-spacing: 0.05em;
+                                                padding: 3px 8px;
+                                                border-radius: var(--radius-full);
+                                                background: ${prioBg};
+                                                color: ${prioColor};
+                                                border: 1px solid ${prioBorder};
+                                                display: inline-block;
                                             ">${i.priority}</span>
                                         </td>
                                     </tr>
-                                `).join('')}
+                                    `;
+                                }).join('')}
                             </tbody>
                         </table>
                     </div>

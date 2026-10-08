@@ -18,80 +18,16 @@
     >
 
     <style>
-
-        .page-container {
-            padding: 40px 7%;
-        }
-
-        .page-header {
-            margin-bottom: 30px;
-        }
-
-        .page-header h1 {
-            color: #FFFFFF;
-            margin-bottom: 5px;
-        }
-
-        .page-header p {
-            color: var(--muted);
-        }
-
-        .prediction-layout {
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 25px;
-        }
-
-        .prediction-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 30px;
-        }
-
-        .prediction-card h2 {
-            color: #FFFFFF;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #FFFFFF;
-        }
-
-        .form-group select,
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 9px;
-            outline: none;
-            background: var(--white);
-            color: #FFFFFF;
-        }
-
-        .form-group select:focus,
-        .form-group input:focus {
-            border-color: var(--primary);
-        }
-
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .checkbox-group input {
             width: auto;
+            accent-color: var(--primary);
         }
 
         .prediction-result {
@@ -109,13 +45,15 @@
         .prediction-number {
             font-size: 4rem;
             font-weight: 800;
-            color: #2563EB;
+            color: var(--primary-light);
+            text-shadow: 0 0 35px var(--primary-glow);
             margin: 15px 0;
+            letter-spacing: -0.02em;
         }
 
         .prediction-label {
-            color: var(--muted);
-            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
         .result-info {
@@ -126,81 +64,88 @@
         }
 
         .info-box {
-            padding: 15px;
-            background: var(--background);
-            border-radius: 10px;
+            padding: 16px;
+            background: var(--bg-surface-subtle);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
         }
 
         .info-box span {
             display: block;
-            color: var(--muted);
-            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
         .info-box strong {
-            color: #FFFFFF;
+            color: var(--heading);
+            font-size: 1.1rem;
         }
 
         .ai-explanation {
-            margin-top: 20px;
-            padding: 22px;
-            border-radius: 14px;
-            background: #000000;
-            border: 1px solid rgba(37, 99, 235, 0.35);
-            color: var(--white);
+            margin-top: 24px;
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            background: var(--bg-surface-subtle);
+            border: 1px solid rgba(5, 150, 105, 0.25);
+            color: var(--text-primary);
             text-align: left;
-            box-shadow: 0 4px 15px rgba(17, 24, 39, 0.2);
+            box-shadow: var(--shadow-sm);
         }
 
         .ai-explanation-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .ai-explanation-header h3 {
             margin: 0;
-            color: var(--white);
-            font-size: 1.05rem;
+            color: var(--heading);
+            font-size: 1.1rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .ai-badge {
-            background: rgba(37, 99, 235, 0.25);
-            color: #93C5FD;
-            border: 1px solid rgba(37, 99, 235, 0.45);
-            padding: 3px 8px;
-            border-radius: 6px;
+            background: var(--primary-subtle);
+            color: var(--primary);
+            border: 1px solid rgba(5, 150, 105, 0.3);
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
         }
 
         .ai-section {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-            border-left: 3px solid #2563EB;
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
         }
 
         .ai-section.recommendation {
             margin-bottom: 0;
-            border-left-color: #78350F;
-            background: rgba(120, 53, 15, 0.15);
+            border-left-color: var(--accent-emerald);
+            background: rgba(5, 150, 105, 0.06);
         }
 
         .ai-section-title {
             font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
             margin-bottom: 6px;
             display: flex;
             align-items: center;
@@ -208,111 +153,80 @@
         }
 
         .ai-section-title.explanation-title {
-            color: #93C5FD;
+            color: var(--primary);
         }
 
         .ai-section-title.recommendation-title {
-            color: #FDBA74;
+            color: #047857;
         }
 
         .ai-explanation p {
-            color: #e2e8f0;
-            font-size: 0.88rem;
-            line-height: 1.55;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
             margin: 0;
         }
 
         .ai-prep-summary {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
             flex-wrap: wrap;
         }
 
         .ai-prep-pill {
-            font-size: 0.8rem;
-            color: #cbd5e1;
-            background: rgba(0, 0, 0, 0.25);
-            padding: 4px 10px;
-            border-radius: 6px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            background: var(--bg-surface);
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
         }
 
         .ai-prep-pill strong {
-            color: #86EFAC;
+            color: #047857;
         }
 
         .empty-result {
             text-align: center;
-            color: var(--muted);
+            color: var(--text-muted);
         }
 
         .empty-result .icon {
             font-size: 3rem;
             margin-bottom: 15px;
-        }
-
-        .message {
-            display: none;
-            margin-bottom: 18px;
-            padding: 12px;
-            border-radius: 9px;
-        }
-
-        .message.error {
-            display: block;
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .message.success {
-            display: block;
-            background: #dcfce7;
-            color: #16A34A;
+            opacity: 0.8;
         }
 
         .price-preview {
-            padding: 15px;
+            padding: 16px;
             margin-bottom: 20px;
-            background: var(--background);
-            border-radius: 10px;
+            background: var(--bg-surface-subtle);
+            border-radius: var(--radius-md);
             border: 1px solid var(--border);
         }
 
         .price-preview p {
             margin: 4px 0;
-            font-size: 0.85rem;
-            color: var(--muted);
+            font-size: 0.88rem;
+            color: var(--text-muted);
         }
 
         .price-preview strong {
             color: var(--primary);
         }
 
-        @media (max-width: 900px) {
-
-            .prediction-layout {
-                grid-template-columns: 1fr;
-            }
-
-        }
-
         @media (max-width: 500px) {
-
             .result-info {
                 grid-template-columns: 1fr;
             }
-
         }
-
     </style>
-
 </head>
 
-
 <body>
-
 
     <!-- =========================
          NAVIGATION
@@ -321,31 +235,23 @@
     <nav class="navbar">
 
         <div class="logo">
-            🍽️ AI Kitchen
+            🍽️ AI Kitchen <span class="logo-tag">AI OS</span>
         </div>
 
         <div class="nav-links">
-
-            <a href="/">
-                Home
-            </a>
-
-            <a href="/dashboard">
-                Dashboard
-            </a>
-
-            <a href="/menu">
-                Menu
-            </a>
-
-            <a href="/sales">
-                Sales
-            </a>
-
-            <a href="/waste">
-                Waste
-            </a>
-
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/kitchen-setup">Setup</a>
+            <a href="/menu">Menu</a>
+            <a href="/recipes">Recipes</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+            <a href="/predictions" class="active">Predictions</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/health-score">Health</a>
+            <a href="/shopping">Shopping</a>
         </div>
 
     </nav>

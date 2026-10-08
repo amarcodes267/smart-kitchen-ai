@@ -17,18 +17,50 @@
     <script src="{{ url_for('static', filename='js/kitchen.js') }}"></script>
 </head>
 
+    <style>
+        .health-score-val {
+            font-size: 3.4rem;
+            font-weight: 800;
+            color: var(--primary-light);
+            text-shadow: 0 0 30px var(--primary-glow);
+            letter-spacing: -0.02em;
+            margin: 6px 0;
+        }
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .breakdown-row:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
 <body>
 
     <nav class="navbar">
 
         <div class="logo">
-            🍽️ AI Kitchen
+            🍽️ AI Kitchen <span class="logo-tag">AI OS</span>
         </div>
 
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/dashboard">Dashboard</a>
+            <a href="/kitchen-setup">Setup</a>
+            <a href="/menu">Menu</a>
+            <a href="/recipes">Recipes</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+            <a href="/predictions">Predictions</a>
+            <a href="/analytics">Analytics</a>
             <a href="/alerts">Alerts</a>
+            <a href="/health-score" class="active">Health</a>
+            <a href="/shopping">Shopping</a>
         </div>
 
     </nav>
@@ -100,7 +132,6 @@
 
     <script>
 
-        const kitchenId = localStorage.getItem("kitchen_id");
         let kitchenId = localStorage.getItem("kitchen_id");
 
         async function loadHealthScore() {
@@ -117,9 +148,8 @@
                 const hs = data.health_score;
 
                 document.getElementById('healthStatus').innerHTML = `
-                    <h1 style="font-size: 3rem; color: var(--primary-dark);">${hs.overall_score} / 100</h1>
-                    <p style="font-size: 1.2rem; font-weight: 700;">${hs.health_emoji} ${hs.status}</p>
-                    <p style="font-size: 1.2rem; font-weight: 700;">${hs.health_emoji || hs.emoji || '⚖️'} ${hs.status}</p>
+                    <div class="health-score-val">${hs.overall_score} / 100</div>
+                    <p style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-top: 4px;">${hs.health_emoji || hs.emoji || '⚖️'} ${hs.status}</p>
                 `;
 
                 if (window.Chart) {
@@ -128,13 +158,14 @@
                         data: {
                             labels: ['Score', 'Remaining'],
                             datasets: [{
-                                data: [hs.overall_score, 100 - hs.overall_score],
-                                backgroundColor: ['#2563EB', '#E5E7EB'],
+                                data: [hs.overall_score, Math.max(0, 100 - hs.overall_score)],
+                                backgroundColor: ['#10B981', 'rgba(255, 255, 255, 0.08)'],
                                 borderWidth: 0,
                             }],
                         },
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             cutout: '80%',
                             plugins: { legend: { display: false }, tooltip: { enabled: false } },
                         },
@@ -143,9 +174,9 @@
 
                 const components = hs.components;
                 document.getElementById('healthBreakdown').innerHTML = Object.entries(components).map(([key, value]) => `
-                    <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
-                        <span style="text-transform:capitalize;">${key.replace('_', ' ')}</span>
-                        <strong>${value}/100</strong>
+                    <div class="breakdown-row">
+                        <span style="text-transform:capitalize; color: var(--text-secondary);">${key.replace('_', ' ')}</span>
+                        <strong style="color: var(--heading); font-size: 1.05rem;">${value}/100</strong>
                     </div>
                 `).join('');
 

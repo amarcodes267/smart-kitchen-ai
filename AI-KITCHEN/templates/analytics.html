@@ -32,38 +32,53 @@
 
         .kitchen-select {
             padding: 9px 16px;
-            border-radius: 9px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--border);
-            background: var(--white);
-            color: var(--text);
+            background: var(--bg-surface-subtle);
+            color: var(--text-primary);
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             outline: none;
+            transition: var(--transition);
+        }
+
+        .kitchen-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
         .period-group {
             display: flex;
-            background: var(--white);
+            background: var(--bg-surface-subtle);
             border: 1px solid var(--border);
-            border-radius: 9px;
+            border-radius: var(--radius-md);
             overflow: hidden;
+            padding: 3px;
+            gap: 4px;
         }
 
         .period-btn {
             border: none;
             background: transparent;
-            padding: 8px 14px;
+            padding: 7px 14px;
+            border-radius: var(--radius-sm);
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--muted);
+            color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: var(--transition);
+        }
+
+        .period-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-surface-subtle);
         }
 
         .period-btn.active {
             background: var(--primary);
-            color: var(--white);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
         }
 
         .kpi-grid {
@@ -74,41 +89,49 @@
         }
 
         .kpi-card {
-            background: var(--white);
+            background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: var(--radius-lg);
             padding: 22px;
             display: flex;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition);
+        }
+
+        .kpi-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-card-hover);
         }
 
         .kpi-icon {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             width: 52px;
             height: 52px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--background);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
         }
 
         .kpi-info span {
             display: block;
-            font-size: 0.82rem;
-            color: var(--muted);
+            font-size: 0.78rem;
+            color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
             margin-bottom: 4px;
         }
 
         .kpi-info strong {
-            font-size: 1.6rem;
-            color: #FFFFFF;
-            font-weight: 700;
+            font-size: 1.7rem;
+            color: var(--heading);
+            font-weight: 800;
+            letter-spacing: -0.02em;
         }
 
         .analytics-grid {
@@ -119,11 +142,11 @@
         }
 
         .analytics-card {
-            background: var(--white);
+            background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: var(--radius-lg);
             padding: 24px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            box-shadow: var(--shadow-card);
         }
 
         .analytics-card.full-width {
@@ -135,11 +158,14 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .card-title-row h2 {
             font-size: 1.15rem;
-            color: #FFFFFF;
+            font-weight: 700;
+            color: var(--heading);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -157,7 +183,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .seller-item:last-child {
@@ -171,90 +197,91 @@
         }
 
         .rank-badge {
-            width: 26px;
-            height: 26px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.75rem;
             font-weight: 700;
-            background: var(--background);
-            color: var(--muted);
+            background: var(--bg-surface-subtle);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
         }
 
         .rank-badge.top-1 {
-            background: #fef08a;
-            color: #854d0e;
+            background: rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #fbbf24;
         }
 
         .rank-badge.top-2 {
-            background: #e2e8f0;
-            color: #475569;
+            background: rgba(148, 163, 184, 0.18);
+            border-color: rgba(148, 163, 184, 0.35);
+            color: #e2e8f0;
         }
 
         .rank-badge.top-3 {
-            background: #fed7aa;
-            color: #9a3412;
+            background: rgba(217, 119, 6, 0.18);
+            border-color: rgba(217, 119, 6, 0.35);
+            color: #fdba74;
         }
 
         .seller-name {
             font-weight: 600;
-            color: var(--text);
+            color: var(--text-primary);
         }
 
         .seller-stats {
             font-size: 0.82rem;
-            color: var(--muted);
+            color: var(--text-muted);
         }
 
         .seller-revenue {
             font-weight: 700;
-            color: var(--primary-dark);
+            color: var(--primary-light);
             text-align: right;
         }
 
         .seller-orders {
             font-size: 0.8rem;
-            color: var(--muted);
+            color: var(--text-muted);
             text-align: right;
         }
 
         .badge-status {
             padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            border-radius: var(--radius-full);
+            font-size: 0.72rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.05em;
             display: inline-block;
         }
 
         .badge-popular {
-            background: #dcfce7;
-            color: #166534;
+            background: var(--success-bg);
+            color: #86efac;
+            border: 1px solid var(--success-border);
         }
 
         .badge-moderate {
-            background: #e0f2fe;
-            color: #0369a1;
+            background: var(--info-bg);
+            color: #7dd3fc;
+            border: 1px solid var(--info-border);
         }
 
         .badge-low {
-            background: #fef3c7;
-            color: #92400e;
+            background: var(--warning-bg);
+            color: #fde047;
+            border: 1px solid var(--warning-border);
         }
 
         .badge-no_sales {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 35px 20px;
-            color: var(--muted);
-            font-size: 0.9rem;
+            background: var(--danger-bg);
+            color: #fca5a5;
+            border: 1px solid var(--danger-border);
         }
 
         @media (max-width: 950px) {
@@ -272,17 +299,23 @@
     ========================== -->
     <nav class="navbar">
         <div class="logo">
-            🍽️ AI Kitchen
+            🍽️ AI Kitchen <span class="logo-tag">AI OS</span>
         </div>
 
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="/dashboard">Dashboard</a>
-            <a href="/predictions">Predictions</a>
-            <a href="/sales">Sales</a>
-            <a href="/inventory">Inventory</a>
-            <a href="/waste">Waste</a>
+            <a href="/kitchen-setup">Setup</a>
             <a href="/menu">Menu</a>
+            <a href="/recipes">Recipes</a>
+            <a href="/inventory">Inventory</a>
+            <a href="/sales">Sales</a>
+            <a href="/waste">Waste</a>
+            <a href="/predictions">Predictions</a>
+            <a href="/analytics" class="active">Analytics</a>
+            <a href="/alerts">Alerts</a>
+            <a href="/health-score">Health</a>
+            <a href="/shopping">Shopping</a>
         </div>
     </nav>
 
@@ -295,7 +328,7 @@
         <div class="page-header-row">
             <div>
                 <span class="badge">Sales Analytics</span>
-                <h1 style="font-size: 1.8rem; margin: 6px 0; color: var(--secondary);">
+                <h1 style="font-size: 2rem; margin: 6px 0; color: var(--heading);">
                     Sales Performance & Menu Intelligence
                 </h1>
                 <p style="color: var(--muted); margin: 0; font-size: 0.95rem;">

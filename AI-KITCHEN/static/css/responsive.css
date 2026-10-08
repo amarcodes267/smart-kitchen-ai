@@ -1,4 +1,7 @@
-﻿/* responsive.css - small responsive helpers */
-@media (max-width: 768px) {
+/* responsive.css - modern responsive helpers */
+@media (max-width: 900px) {
   .dashboard-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .dashboard-page, .page-container { padding: 24px 4% 60px; }
 }
