@@ -2,7 +2,7 @@ import os
 import sys
 import importlib.util
 
-# Ensure AI-KITCHEN directory is in sys.path
+
 ai_kitchen_dir = os.path.join(os.path.dirname(__file__), "AI-KITCHEN")
 if ai_kitchen_dir not in sys.path:
     sys.path.insert(0, ai_kitchen_dir)
