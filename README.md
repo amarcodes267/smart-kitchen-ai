@@ -1,3 +1,1 @@
-# smart-kitchen-ai
 
-AI-powered commercial kitchen management platform for demand prediction, food-waste tracking, and preparation optimization.
