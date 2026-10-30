@@ -50,7 +50,7 @@ In modern hospitality, ghost kitchens, and enterprise cafeterias, over-preparati
 2. **Inventory-Aware Preparation Optimization**: Translates predicted portion counts into real ingredient deductions, cross-referencing available storage to recommend non-wasteful prep targets.
 3. **Generative Recipe Management**: Powered by **Google Gemini** with curated culinary fallbacks to standardize kitchen operating procedures (SOPs) and automatically calculate raw-material batch requirements.
 4. **Operations Intelligence & Automated Procurement**: Auto-generates prioritized shopping lists and real-time alerts for expiring shelf life, stock deficits, and waste spikes.
-5. **Modern Light SaaS Experience**: A fully responsive interface engineered with an airy palette (soft slate, botanical emerald, culinary amber), crisp typography, and interactive Chart.js visualizations.
+9
 
 ---
 
