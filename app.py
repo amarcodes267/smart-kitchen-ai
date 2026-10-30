@@ -7,7 +7,7 @@ ai_kitchen_dir = os.path.join(os.path.dirname(__file__), "AI-KITCHEN")
 if ai_kitchen_dir not in sys.path:
     sys.path.insert(0, ai_kitchen_dir)
 
-# Load the Flask app instance from AI-KITCHEN/app.py
+
 inner_app_path = os.path.join(ai_kitchen_dir, "app.py")
 spec = importlib.util.spec_from_file_location("ai_kitchen_app", inner_app_path)
 module = importlib.util.module_from_spec(spec)
