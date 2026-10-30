@@ -204,7 +204,7 @@ The recipe subsystem bridges generative AI and deterministic kitchen operations:
 
 ---
 
-## 📊 Kitchen Health Score Algorithm
+# 📊 Kitchen Health Score Algorithm
 
 The **Kitchen Health Score** ($0 - 100$) evaluates kitchen operational efficiency across 5 weighted pillars:
 
